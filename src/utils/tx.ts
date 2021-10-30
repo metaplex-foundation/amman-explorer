@@ -21,6 +21,8 @@ import { Cluster } from "providers/cluster";
 import { SerumMarketRegistry } from "serumMarketRegistry";
 import { TokenInfoMap } from "@solana/spl-token-registry";
 
+import { customAddressLabels } from "../utils/custom-address-labels";
+
 export type ProgramName =
   typeof PROGRAM_NAME_BY_ID[keyof typeof PROGRAM_NAME_BY_ID];
 
@@ -313,7 +315,11 @@ export function displayAddress(
   cluster: Cluster,
   tokenRegistry: TokenInfoMap
 ): string {
-  return addressLabel(address, cluster, tokenRegistry) || address;
+  return (
+    customAddressLabels.get(address) ||
+    addressLabel(address, cluster, tokenRegistry) ||
+    address
+  );
 }
 
 export function intoTransactionInstruction(
