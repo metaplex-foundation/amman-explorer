@@ -41,9 +41,12 @@ export function Address({
     truncate = true;
   }
 
-  let addressLabel = raw
-    ? address
-    : displayAddress(address, cluster, tokenRegistry);
+  const displayLabel = displayAddress(address, cluster, tokenRegistry);
+  let addressLabel = raw ? address : displayLabel;
+  if (addressLabel !== displayLabel) {
+    addressLabel = `${displayLabel} (${addressLabel})`;
+    document.title = displayLabel;
+  }
 
   var metaplexData = useTokenMetadata(useMetadata, address);
   if (metaplexData && metaplexData.data)
