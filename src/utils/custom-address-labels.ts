@@ -1,14 +1,19 @@
 const ADDRESS_LABELS = "CustomAddressLabels";
+// const ADDRESS_LABELS_PATH = "/tmp/solana-explorer-address-labels.json";
 
 class CustomAddressLabels {
   private _labels: Map<string, string>;
 
-  constructor() {
-    const storedLabels: string | null = localStorage.getItem(ADDRESS_LABELS);
-    if (storedLabels != null) {
-      this._labels = this._parseAddressLabels(storedLabels).labels;
+  constructor(fileLabels?: Record<string, string>) {
+    if (fileLabels != null) {
+      this._labels = new Map(Object.entries(fileLabels));
     } else {
-      this._labels = new Map();
+      const storedLabels: string | null = localStorage.getItem(ADDRESS_LABELS);
+      if (storedLabels != null) {
+        this._labels = this._parseAddressLabels(storedLabels).labels;
+      } else {
+        this._labels = new Map();
+      }
     }
   }
 
@@ -35,4 +40,12 @@ class CustomAddressLabels {
   }
 }
 
-export const customAddressLabels = new CustomAddressLabels();
+let initializedAddressLabels = new CustomAddressLabels();
+
+try {
+  initializedAddressLabels = new CustomAddressLabels(
+    require("../data/address-labels.json")
+  );
+} catch (_) {}
+
+export const customAddressLabels = initializedAddressLabels;
