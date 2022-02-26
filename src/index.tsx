@@ -13,41 +13,66 @@ import { StatsProvider } from "providers/stats";
 import { MintsProvider } from "providers/mints";
 import { TransactionsMonitorProvider } from "./amman";
 import { getLatestTransactionSignatures } from "./amman/queries";
+import { LOCALHOST } from "./amman/consts";
+import { Connection } from "@solana/web3.js";
+
+async function verifyLocalCluster() {
+  const connection = new Connection(LOCALHOST);
+  try {
+    const clusterNodes = await connection.getClusterNodes();
+    console.log({ clusterNodes });
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 
 async function main() {
-  const currentTransactionSignatures = await getLatestTransactionSignatures();
+  if (!(await verifyLocalCluster())) {
+    ReactDOM.render(
+      <div>
+        <h2>Failed to connect to local test validator at {LOCALHOST}</h2>
+        <div>
+          Please start one, ideally via{" "}
+          <a href="https://github.com/metaplex-foundation/amman">amman</a>.
+        </div>
+      </div>,
+      document.getElementById("root")
+    );
+  } else {
+    const currentTransactionSignatures = await getLatestTransactionSignatures();
 
-  ReactDOM.render(
-    <Router>
-      <ClusterProvider>
-        <StatsProvider>
-          <SupplyProvider>
-            <RichListProvider>
-              <AccountsProvider>
-                <BlockProvider>
-                  <EpochProvider>
-                    <MintsProvider>
-                      <TransactionsProvider>
-                        <TransactionsMonitorProvider
-                          signatures={currentTransactionSignatures}
-                        >
-                          <App />
-                        </TransactionsMonitorProvider>
-                      </TransactionsProvider>
-                    </MintsProvider>
-                  </EpochProvider>
-                </BlockProvider>
-              </AccountsProvider>
-            </RichListProvider>
-          </SupplyProvider>
-        </StatsProvider>
-      </ClusterProvider>
-    </Router>,
-    document.getElementById("root")
-  );
+    ReactDOM.render(
+      <Router>
+        <ClusterProvider>
+          <StatsProvider>
+            <SupplyProvider>
+              <RichListProvider>
+                <AccountsProvider>
+                  <BlockProvider>
+                    <EpochProvider>
+                      <MintsProvider>
+                        <TransactionsProvider>
+                          <TransactionsMonitorProvider
+                            signatures={currentTransactionSignatures}
+                          >
+                            <App />
+                          </TransactionsMonitorProvider>
+                        </TransactionsProvider>
+                      </MintsProvider>
+                    </EpochProvider>
+                  </BlockProvider>
+                </AccountsProvider>
+              </RichListProvider>
+            </SupplyProvider>
+          </StatsProvider>
+        </ClusterProvider>
+      </Router>,
+      document.getElementById("root")
+    );
+  }
 }
 
 main().catch((err: any) => {
   console.error(err);
-  process.exit(1);
 });
