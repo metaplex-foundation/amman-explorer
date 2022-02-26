@@ -1,6 +1,5 @@
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
-import * as Sentry from "@sentry/react";
 import "./scss/theme-dark.scss";
 import App from "./App";
 import { ClusterProvider } from "./providers/cluster";
@@ -15,15 +14,8 @@ import { MintsProvider } from "providers/mints";
 import { TransactionsMonitorProvider } from "./amman";
 import { getLatestTransactionSignatures } from "./amman/queries";
 
-if (process?.env.NODE_ENV === "production") {
-  Sentry.init({
-    dsn: "https://5efdc15b4828434fbe949b5daed472be@o434108.ingest.sentry.io/5390542",
-  });
-}
-
 async function main() {
   const currentTransactionSignatures = await getLatestTransactionSignatures();
-  console.log({ currentTransactionSignatures });
 
   ReactDOM.render(
     <Router>
