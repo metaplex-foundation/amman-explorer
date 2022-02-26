@@ -104,17 +104,3 @@ export async function getLatestTransactionSignatures(
 ): Promise<TransactionSignatureWithBlock[]> {
   return createBlockAgent(url).latestTransactionSignatures(amount);
 }
-
-/*
-  async function main() {
-    const latest = await getLatestTransactionSignatures();
-    console.log(latest);
-  }
-
-  main()
-    .then(() => process.exit(0))
-    .catch((err: any) => {
-      console.error(err);
-      process.exit(1);
-    });
-*/
