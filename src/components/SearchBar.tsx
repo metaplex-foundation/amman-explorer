@@ -14,6 +14,7 @@ import {
 import { Cluster, useCluster } from "providers/cluster";
 import { useTokenRegistry } from "providers/mints/token-registry";
 import { TokenInfoMap } from "@solana/spl-token-registry";
+import { TransactionsMonitorView } from "../amman/components";
 
 export function SearchBar() {
   const [search, setSearch] = React.useState("");
@@ -39,36 +40,39 @@ export function SearchBar() {
 
   const resetValue = "" as any;
   return (
-    <div className="container my-4">
-      <div className="row align-items-center">
-        <div className="col">
-          <Select
-            ref={(ref) => (selectRef.current = ref)}
-            options={buildOptions(
-              search,
-              cluster,
-              tokenRegistry,
-              clusterInfo?.epochInfo.epoch
-            )}
-            noOptionsMessage={() => "No Results"}
-            placeholder="Search for blocks, accounts, transactions, programs, and tokens"
-            value={resetValue}
-            inputValue={search}
-            blurInputOnSelect
-            onMenuClose={() => selectRef.current?.blur()}
-            onChange={onChange}
-            styles={{
-              /* work around for https://github.com/JedWatson/react-select/issues/3857 */
-              placeholder: (style) => ({ ...style, pointerEvents: "none" }),
-              input: (style) => ({ ...style, width: "100%" }),
-            }}
-            onInputChange={onInputChange}
-            components={{ DropdownIndicator }}
-            classNamePrefix="search-bar"
-          />
+    <>
+      <div className="container my-4">
+        <div className="row align-items-center">
+          <div className="col">
+            <Select
+              ref={(ref) => (selectRef.current = ref)}
+              options={buildOptions(
+                search,
+                cluster,
+                tokenRegistry,
+                clusterInfo?.epochInfo.epoch
+              )}
+              noOptionsMessage={() => "No Results"}
+              placeholder="Search for blocks, accounts, transactions, programs, and tokens"
+              value={resetValue}
+              inputValue={search}
+              blurInputOnSelect
+              onMenuClose={() => selectRef.current?.blur()}
+              onChange={onChange}
+              styles={{
+                /* work around for https://github.com/JedWatson/react-select/issues/3857 */
+                placeholder: (style) => ({ ...style, pointerEvents: "none" }),
+                input: (style) => ({ ...style, width: "100%" }),
+              }}
+              onInputChange={onInputChange}
+              components={{ DropdownIndicator }}
+              classNamePrefix="search-bar"
+            />
+          </div>
         </div>
       </div>
-    </div>
+      <TransactionsMonitorView />
+    </>
   );
 }
 
