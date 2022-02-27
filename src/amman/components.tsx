@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { customAddressLabels } from "../utils/custom-address-labels";
-import { useTransactionsMonitor } from "./providers";
+import { useCustomAddressLabels, useTransactionsMonitor } from "./providers";
 
 export function TransactionsMonitorView() {
   const [transactionSignatures] = useTransactionsMonitor();
+  const [customAddressLabels] = useCustomAddressLabels();
 
   return (
     <div className="header-signatures container my-4">

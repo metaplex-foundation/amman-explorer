@@ -11,10 +11,15 @@ import { BlockProvider } from "./providers/block";
 import { EpochProvider } from "./providers/epoch";
 import { StatsProvider } from "providers/stats";
 import { MintsProvider } from "providers/mints";
-import { TransactionsMonitorProvider } from "./amman";
+import {
+  AmmanClient,
+  CustomAddressLabelsProvider,
+  TransactionsMonitorProvider,
+} from "./amman";
 import { getLatestTransactionSignatures } from "./amman/queries";
 import { LOCALHOST } from "./amman/consts";
 import { Connection } from "@solana/web3.js";
+import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
 
 async function verifyLocalCluster() {
   const connection = new Connection(LOCALHOST);
@@ -27,7 +32,14 @@ async function verifyLocalCluster() {
   }
 }
 
+function initAmmanClient() {
+  const url = `http://localhost:${AMMAN_RELAY_PORT}`;
+  AmmanClient.setInstance(url);
+  return AmmanClient.instance;
+}
+
 async function main() {
+  const ammanClient = initAmmanClient();
   if (!(await verifyLocalCluster())) {
     ReactDOM.render(
       <div>
@@ -56,7 +68,11 @@ async function main() {
                           <TransactionsMonitorProvider
                             signatures={currentTransactionSignatures}
                           >
-                            <App />
+                            <CustomAddressLabelsProvider
+                              ammanClient={ammanClient}
+                            >
+                              <App />
+                            </CustomAddressLabelsProvider>
                           </TransactionsMonitorProvider>
                         </TransactionsProvider>
                       </MintsProvider>

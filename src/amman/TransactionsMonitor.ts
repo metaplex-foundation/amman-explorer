@@ -42,7 +42,6 @@ export class TransactionsMonitor {
   private update(sigsBefore: string[] = []) {
     const currentSignatures = this.signaturesSortedDesc();
     if (sigsBefore.join("") !== currentSignatures.join("")) {
-      console.log(currentSignatures);
       this.onSignaturesChanged(currentSignatures);
     }
   }
