@@ -15,6 +15,7 @@ import {
 import { FetchStatus } from "providers/cache";
 import { LoadingCard } from "components/common/LoadingCard";
 import { ErrorCard } from "components/common/ErrorCard";
+import { useCustomAddressLabels } from "../../../amman";
 
 export function TransactionHistoryCard({ pubkey }: { pubkey: PublicKey }) {
   const address = pubkey.toBase58();
@@ -22,6 +23,7 @@ export function TransactionHistoryCard({ pubkey }: { pubkey: PublicKey }) {
   const fetchAccountHistory = useFetchAccountHistory();
   const refresh = () => fetchAccountHistory(pubkey, false, true);
   const loadMore = () => fetchAccountHistory(pubkey, false);
+  const [customAddressLabels] = useCustomAddressLabels();
 
   const transactionRows = React.useMemo(() => {
     if (history?.data?.fetched) {
@@ -53,10 +55,16 @@ export function TransactionHistoryCard({ pubkey }: { pubkey: PublicKey }) {
   const hasTimestamps = transactionRows.some((element) => element.blockTime);
   const detailsList: React.ReactNode[] = transactionRows.map(
     ({ slot, signature, blockTime, statusClass, statusText }) => {
+      const addressLabel = customAddressLabels.get(signature);
       return (
         <tr key={signature}>
           <td>
-            <Signature signature={signature} link truncate />
+            <Signature
+              signature={signature}
+              addressLabel={addressLabel}
+              link
+              truncate
+            />
           </td>
 
           <td className="w-1">

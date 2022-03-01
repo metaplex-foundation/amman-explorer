@@ -10,6 +10,7 @@ type Props = {
   link?: boolean;
   truncate?: boolean;
   truncateChars?: number;
+  addressLabel?: string;
 };
 
 export function Signature({
@@ -18,12 +19,22 @@ export function Signature({
   link,
   truncate,
   truncateChars,
+  addressLabel,
 }: Props) {
   let signatureLabel = signature;
 
   if (truncateChars) {
     signatureLabel = signature.slice(0, truncateChars) + "…";
   }
+  const signatureDisplay =
+    addressLabel == null ? (
+      <>{signatureLabel}</>
+    ) : (
+      <>
+        <span>{addressLabel}</span>
+        <span className="opacity-25 display-6 ms-3">{signature}</span>
+      </>
+    );
 
   return (
     <div
@@ -38,10 +49,10 @@ export function Signature({
               className={truncate ? "text-truncate signature-truncate" : ""}
               to={clusterPath(`/tx/${signature}`)}
             >
-              {signatureLabel}
+              {signatureDisplay}
             </Link>
           ) : (
-            signatureLabel
+            signatureDisplay
           )}
         </span>
       </Copyable>
