@@ -1,16 +1,15 @@
-import { TransactionsMonitor } from "./TransactionsMonitor";
+import { TransactionInfo, TransactionsMonitor } from "./TransactionsMonitor";
 import { strict as assert } from "assert";
 
 import { useCluster } from "../providers/cluster";
-import { TransactionSignature } from "@solana/web3.js";
 import React from "react";
 import { CustomAddressLabelsMonitor } from "./CustomAddressLabelsMonitor";
 
 // -----------------
 // TransactionsMonitor
 // -----------------
-const TransactionsMonitorContext: React.Context<TransactionSignature[]> =
-  React.createContext([] as TransactionSignature[]);
+const TransactionsMonitorContext: React.Context<TransactionInfo[]> =
+  React.createContext([] as TransactionInfo[]);
 
 export function useTransactionsMonitor() {
   const context = React.useContext(TransactionsMonitorContext);
@@ -19,18 +18,21 @@ export function useTransactionsMonitor() {
     "useMonitorTransactions expected to be inside MonitorTransactionsProvider"
   );
   return context as unknown as [
-    TransactionSignature[],
-    React.Dispatch<React.SetStateAction<TransactionSignature[]>>
+    TransactionInfo[],
+    React.Dispatch<React.SetStateAction<TransactionInfo[]>>
   ];
 }
 
 export function TransactionsMonitorProvider(props: any) {
   const { url } = useCluster();
-  const [signatures, setSignatures] = React.useState(
-    [] as TransactionSignature[]
+  const [transactionInfos, setTransactionInfos] = React.useState(
+    [] as TransactionInfo[]
   );
-  const value = React.useMemo(() => [signatures, setSignatures], [signatures]);
-  TransactionsMonitor.instance(url, props.signatures, setSignatures);
+  const value = React.useMemo(
+    () => [transactionInfos, setTransactionInfos],
+    [transactionInfos]
+  );
+  TransactionsMonitor.instance(url, props.signatures, setTransactionInfos);
   return <TransactionsMonitorContext.Provider value={value} {...props} />;
 }
 

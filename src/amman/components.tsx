@@ -2,25 +2,41 @@ import { Link } from "react-router-dom";
 import { useCustomAddressLabels, useTransactionsMonitor } from "./providers";
 
 export function TransactionsMonitorView() {
-  const [transactionSignatures] = useTransactionsMonitor();
+  const [transactionInfos] = useTransactionsMonitor();
   const [customAddressLabels] = useCustomAddressLabels();
 
   return (
     <div className="header-signatures container my-4">
       <h5>Recent Transactions</h5>
       <div className="row align-items-center">
-        {transactionSignatures.map((x) => {
-          let label = <span>{x}</span>;
-          const addressLabel = customAddressLabels.get(x);
+        {transactionInfos.map((x) => {
+          let label = (
+            <p className="display-6 text-truncate" style={{ maxWidth: 255 }}>
+              {x.index}. {x.signature}
+            </p>
+          );
+          const addressLabel = customAddressLabels.get(x.signature);
           if (addressLabel != null) {
             label = (
-              <>
-                <span>{addressLabel}</span> <p className="opacity-25">{x}</p>
-              </>
+              <div>
+                <span>
+                  {x.index}. {addressLabel}
+                </span>
+                <p
+                  className="opacity-25 display-6 text-truncate"
+                  style={{ maxWidth: 250 }}
+                >
+                  {x.signature}
+                </p>
+              </div>
             );
           }
           return (
-            <Link className="col" key={x} to={"/tx/" + x}>
+            <Link
+              className="col-md"
+              key={x.signature}
+              to={"/tx/" + x.signature}
+            >
               {label}
             </Link>
           );

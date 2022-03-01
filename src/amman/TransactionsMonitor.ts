@@ -5,80 +5,94 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 
-export type OnSignaturesChanged = (signatures: TransactionSignature[]) => void;
+export type TransactionInfo = {
+  signature: TransactionSignature;
+  block: number;
+  index: number;
+};
+export type OnTransactionsChanged = (transactions: TransactionInfo[]) => void;
 export class TransactionsMonitor {
-  readonly latestSignatures: Map<TransactionSignature, number> = new Map();
+  readonly latestTransactions: TransactionInfo[] = [];
+  transactionIdx: number = 0;
   private constructor(
     readonly connection: Connection,
-    currentSignatures: { block: number; signature: TransactionSignature }[],
-    private onSignaturesChanged: OnSignaturesChanged,
-    readonly maxSignatures: number
+    initialSignatures: { block: number; signature: TransactionSignature }[],
+    private onTransactionsChanged: OnTransactionsChanged,
+    readonly maxTransactions: number
   ) {
     this.connection.onLogs("all", this.onLog);
-    for (const { block, signature } of currentSignatures.slice(
-      0,
-      maxSignatures
-    )) {
-      this.latestSignatures.set(signature, block);
-    }
+    this.addSortedSliceOfSignatures(initialSignatures);
     this.update();
   }
 
-  private onLog = (logs: Logs, ctx: Context) => {
-    const sigsBefore = this.signaturesSortedDesc();
-    this.latestSignatures.set(logs.signature, ctx.slot);
-    this._purgeOldSignatures();
-    this.update(sigsBefore);
-  };
-
-  private signaturesSortedDesc() {
-    const entries: [string, number][] = Array.from(
-      this.latestSignatures.entries()
+  private addSortedSliceOfSignatures(
+    currentSignatures: { block: number; signature: TransactionSignature }[]
+  ) {
+    const sorted = Array.from(currentSignatures).sort(
+      ({ block: blockA }, { block: blockB }) => (blockA < blockB ? -1 : 1)
     );
-    entries.sort(([_a, blockA], [_b, blockB]) => (blockA < blockB ? 1 : -1));
-    return entries.map(([sig, _]) => sig);
+    const len = sorted.length;
+    for (const { block, signature } of sorted.slice(
+      Math.max(len - this.maxTransactions, 0),
+      len
+    )) {
+      this.latestTransactions.push({
+        signature,
+        block,
+        index: this.transactionIdx++,
+      });
+    }
   }
 
-  private update(sigsBefore: string[] = []) {
-    const currentSignatures = this.signaturesSortedDesc();
-    if (sigsBefore.join("") !== currentSignatures.join("")) {
-      this.onSignaturesChanged(currentSignatures);
+  private onLog = (logs: Logs, ctx: Context) => {
+    const txsBefore = Array.from(this.latestTransactions);
+    this.latestTransactions.push({
+      signature: logs.signature,
+      block: ctx.slot,
+      index: this.transactionIdx++,
+    });
+    this._purgeOldSignatures();
+    this.update(txsBefore);
+  };
+
+  private update(txsBefore: TransactionInfo[] = []) {
+    if (
+      txsBefore.map((x) => x.signature).join("") !==
+      this.latestTransactions.map((x) => x.signature).join("")
+    ) {
+      const currentTransactions = Array.from(this.latestTransactions).reverse();
+      this.onTransactionsChanged(currentTransactions);
     }
   }
 
   private _purgeOldSignatures() {
-    if (this.latestSignatures.size < this.maxSignatures) return;
-    let oldest: { signature: string; slot: number } = {
-      signature: "",
-      slot: Number.MAX_VALUE,
-    };
-
-    for (const [signature, slot] of this.latestSignatures) {
-      if (slot < oldest.slot) {
-        oldest = { signature, slot };
-      }
+    // Assuming they are sorted by block ascending
+    while (this.latestTransactions.length > this.maxTransactions) {
+      this.latestTransactions.shift();
     }
-    this.latestSignatures.delete(oldest.signature);
   }
 
   private static _instance?: TransactionsMonitor;
   static instance(
     url: string,
     currentSignatures: { block: number; signature: TransactionSignature }[],
-    onSignaturesChanged: OnSignaturesChanged,
-    maxSignatures: number = 10
+    onTransactionsChanged: OnTransactionsChanged,
+    maxTransactions: number = TransactionsMonitor.DEFAULT_MAX_TRANSACTIONS
   ): TransactionsMonitor {
     if (TransactionsMonitor._instance != null) {
-      TransactionsMonitor._instance.onSignaturesChanged = onSignaturesChanged;
+      TransactionsMonitor._instance.onTransactionsChanged =
+        onTransactionsChanged;
       return TransactionsMonitor._instance;
     }
     const connection = new Connection(url, "singleGossip");
     TransactionsMonitor._instance = new TransactionsMonitor(
       connection,
       currentSignatures,
-      onSignaturesChanged,
-      maxSignatures
+      onTransactionsChanged,
+      maxTransactions
     );
     return TransactionsMonitor._instance;
   }
+
+  static DEFAULT_MAX_TRANSACTIONS = 12;
 }
