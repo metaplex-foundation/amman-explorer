@@ -1,6 +1,6 @@
 {
-  "short_name": "Solana Explorer",
-  "name": "Explorer for Solana clusters",
+  "short_name": "Amman Explorer",
+  "name": "Explorer for local Solana clusters",
   "icons": [
     {
       "src": "favicon.ico",
