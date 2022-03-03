@@ -13,7 +13,7 @@ export type TransactionInfo = {
 export type OnTransactionsChanged = (transactions: TransactionInfo[]) => void;
 export class TransactionsMonitor {
   readonly latestTransactions: TransactionInfo[] = [];
-  transactionIdx: number = 0;
+  transactionCount: number = 0;
   private constructor(
     readonly connection: Connection,
     initialSignatures: { block: number; signature: TransactionSignature }[],
@@ -39,7 +39,7 @@ export class TransactionsMonitor {
       this.latestTransactions.push({
         signature,
         block,
-        index: this.transactionIdx++,
+        index: ++this.transactionCount,
       });
     }
   }
@@ -49,7 +49,7 @@ export class TransactionsMonitor {
     this.latestTransactions.push({
       signature: logs.signature,
       block: ctx.slot,
-      index: this.transactionIdx++,
+      index: ++this.transactionCount,
     });
     this._purgeOldSignatures();
     this.update(txsBefore);
