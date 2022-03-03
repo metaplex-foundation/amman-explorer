@@ -8,6 +8,7 @@ import { Copyable } from "./Copyable";
 import { useTokenRegistry } from "providers/mints/token-registry";
 import { useState, useEffect } from "react";
 import { Connection, programs } from "@metaplex/js";
+import { useCustomAddressLabels } from "../../amman";
 
 type Props = {
   pubkey: PublicKey;
@@ -33,17 +34,27 @@ export function Address({
   const address = pubkey.toBase58();
   const { tokenRegistry } = useTokenRegistry();
   const { cluster } = useCluster();
+  const [customAddressLabels] = useCustomAddressLabels();
 
   if (
     truncateUnknown &&
-    address === displayAddress(address, cluster, tokenRegistry)
+    address ===
+      displayAddress(address, cluster, tokenRegistry, customAddressLabels)
   ) {
     truncate = true;
   }
 
-  let addressLabel = raw
-    ? address
-    : displayAddress(address, cluster, tokenRegistry);
+  const displayLabel = displayAddress(
+    address,
+    cluster,
+    tokenRegistry,
+    customAddressLabels
+  );
+  let addressLabel = raw ? address : displayLabel;
+  if (addressLabel !== displayLabel) {
+    addressLabel = `${displayLabel} (${addressLabel})`;
+    document.title = displayLabel;
+  }
 
   var metaplexData = useTokenMetadata(useMetadata, address);
   if (metaplexData && metaplexData.data)

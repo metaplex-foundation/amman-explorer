@@ -311,9 +311,14 @@ export function addressLabel(
 export function displayAddress(
   address: string,
   cluster: Cluster,
-  tokenRegistry: TokenInfoMap
+  tokenRegistry: TokenInfoMap,
+  customAddressLabels: Map<string, string> = new Map()
 ): string {
-  return addressLabel(address, cluster, tokenRegistry) || address;
+  return (
+    customAddressLabels.get(address) ||
+    addressLabel(address, cluster, tokenRegistry) ||
+    address
+  );
 }
 
 export function intoTransactionInstruction(

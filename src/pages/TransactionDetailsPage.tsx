@@ -30,6 +30,7 @@ import { TokenBalancesCard } from "components/transaction/TokenBalancesCard";
 import { InstructionsSection } from "components/transaction/InstructionsSection";
 import { ProgramLogSection } from "components/transaction/ProgramLogSection";
 import { clusterPath } from "utils/url";
+import { useCustomAddressLabels } from "../amman";
 
 const AUTO_REFRESH_INTERVAL = 2000;
 const ZERO_CONFIRMATION_BAILOUT = 5;
@@ -120,6 +121,7 @@ function StatusCard({
   const status = useTransactionStatus(signature);
   const details = useTransactionDetails(signature);
   const { clusterInfo, status: clusterStatus } = useCluster();
+  const [customAddressLabels] = useCustomAddressLabels();
 
   // Fetch transaction on load
   React.useEffect(() => {
@@ -201,6 +203,8 @@ function StatusCard({
     );
   })();
 
+  const addressLabel = customAddressLabels.get(signature);
+  const truncate = addressLabel != null;
   return (
     <div className="card">
       <div className="card-header align-items-center">
@@ -229,7 +233,12 @@ function StatusCard({
         <tr>
           <td>Signature</td>
           <td className="text-lg-end">
-            <Signature signature={signature} alignRight />
+            <Signature
+              signature={signature}
+              addressLabel={addressLabel}
+              truncate={truncate}
+              alignRight
+            />
           </td>
         </tr>
 

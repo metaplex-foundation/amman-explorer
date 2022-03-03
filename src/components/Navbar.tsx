@@ -12,6 +12,7 @@ export function Navbar() {
     <nav className="navbar navbar-expand-md navbar-light">
       <div className="container">
         <Link to={clusterPath("/")}>
+          <span>Amman</span>
           <img src={Logo} width="250" alt="Solana Explorer" />
         </Link>
 
