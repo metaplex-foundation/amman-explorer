@@ -20,6 +20,7 @@ import { getLatestTransactionSignatures } from "./amman/queries";
 import { LOCALHOST } from "./amman/consts";
 import { Connection } from "@solana/web3.js";
 import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
+import { getQuery } from "./utils/url";
 
 async function verifyLocalCluster() {
   const connection = new Connection(LOCALHOST);
@@ -30,6 +31,12 @@ async function verifyLocalCluster() {
   } catch (err) {
     return false;
   }
+}
+
+function parseLoadHistory(query: URLSearchParams): boolean {
+  const loadTransactionHistory = query.get("loadTransactionHistory");
+  if (loadTransactionHistory == null) return false;
+  return loadTransactionHistory === "true";
 }
 
 function initAmmanClient() {
@@ -52,7 +59,11 @@ async function main() {
       document.getElementById("root")
     );
   } else {
-    const currentTransactionSignatures = await getLatestTransactionSignatures();
+    const query = getQuery();
+    const loadHistory = parseLoadHistory(query);
+    const currentTransactionSignatures = loadHistory
+      ? await getLatestTransactionSignatures()
+      : [];
 
     ReactDOM.render(
       <Router>
