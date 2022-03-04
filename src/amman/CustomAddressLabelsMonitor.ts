@@ -1,4 +1,8 @@
-import { AmmanClient, UPDATE_ADDRESS_LABELS } from "./amman-client";
+import {
+  AmmanClient,
+  CLEAR_ADDRESS_LABELS,
+  UPDATE_ADDRESS_LABELS,
+} from "./amman-client";
 
 export type HandleAddressLabelsChanged = (labels: Map<string, string>) => void;
 
@@ -11,6 +15,7 @@ export class CustomAddressLabelsMonitor {
   ) {
     this.ammanClient
       .on(UPDATE_ADDRESS_LABELS, this.onUpdateLabels)
+      .on(CLEAR_ADDRESS_LABELS, this.onClearLabels)
       .requestKnownAddressLabels();
   }
 
@@ -19,6 +24,11 @@ export class CustomAddressLabelsMonitor {
       ...Array.from(this._labels),
       ...Object.entries(labels),
     ]);
+    this.handleAddressLablesChanged(this._labels);
+  };
+
+  private onClearLabels = () => {
+    this._labels.clear();
     this.handleAddressLablesChanged(this._labels);
   };
 

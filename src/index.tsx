@@ -66,6 +66,7 @@ async function main() {
                       <MintsProvider>
                         <TransactionsProvider>
                           <TransactionsMonitorProvider
+                            ammanClient={ammanClient}
                             signatures={currentTransactionSignatures}
                           >
                             <CustomAddressLabelsProvider

@@ -4,6 +4,7 @@ import {
   Logs,
   TransactionSignature,
 } from "@solana/web3.js";
+import { AmmanClient, CLEAR_TRANSACTIONS } from "./amman-client";
 
 export type TransactionInfo = {
   signature: TransactionSignature;
@@ -16,11 +17,13 @@ export class TransactionsMonitor {
   transactionCount: number = 0;
   private constructor(
     readonly connection: Connection,
+    readonly ammanClient: AmmanClient,
     initialSignatures: { block: number; signature: TransactionSignature }[],
     private onTransactionsChanged: OnTransactionsChanged,
     readonly maxTransactions: number
   ) {
     this.connection.onLogs("all", this.onLog);
+    this.ammanClient.on(CLEAR_TRANSACTIONS, this.onClearTransactions);
     this.addSortedSliceOfSignatures(initialSignatures);
     this.update();
   }
@@ -72,9 +75,15 @@ export class TransactionsMonitor {
     }
   }
 
+  private onClearTransactions = () => {
+    this.latestTransactions.length = 0;
+    this.transactionCount = 0;
+  };
+
   private static _instance?: TransactionsMonitor;
   static instance(
     url: string,
+    ammanClient: AmmanClient,
     currentSignatures: { block: number; signature: TransactionSignature }[],
     onTransactionsChanged: OnTransactionsChanged,
     maxTransactions: number = TransactionsMonitor.DEFAULT_MAX_TRANSACTIONS
@@ -87,6 +96,7 @@ export class TransactionsMonitor {
     const connection = new Connection(url, "singleGossip");
     TransactionsMonitor._instance = new TransactionsMonitor(
       connection,
+      ammanClient,
       currentSignatures,
       onTransactionsChanged,
       maxTransactions
