@@ -56,6 +56,10 @@ export function TransactionHistoryCard({ pubkey }: { pubkey: PublicKey }) {
   const detailsList: React.ReactNode[] = transactionRows.map(
     ({ slot, signature, blockTime, statusClass, statusText }) => {
       const addressLabel = customAddressLabels.get(signature);
+      const truncateChars =
+        addressLabel != null
+          ? signature.length - addressLabel.length
+          : undefined;
       return (
         <tr key={signature}>
           <td>
@@ -64,6 +68,7 @@ export function TransactionHistoryCard({ pubkey }: { pubkey: PublicKey }) {
               addressLabel={addressLabel}
               link
               truncate
+              truncateChars={truncateChars}
             />
           </td>
 
