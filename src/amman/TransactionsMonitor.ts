@@ -2,6 +2,7 @@ import {
   Connection,
   Context,
   Logs,
+  TransactionError,
   TransactionSignature,
 } from "@solana/web3.js";
 import { AmmanClient, CLEAR_TRANSACTIONS } from "./amman-client";
@@ -10,6 +11,7 @@ export type TransactionInfo = {
   signature: TransactionSignature;
   block: number;
   index: number;
+  err?: TransactionError;
 };
 export type OnTransactionsChanged = (transactions: TransactionInfo[]) => void;
 export class TransactionsMonitor {
@@ -18,7 +20,11 @@ export class TransactionsMonitor {
   private constructor(
     readonly connection: Connection,
     readonly ammanClient: AmmanClient,
-    initialSignatures: { block: number; signature: TransactionSignature }[],
+    initialSignatures: {
+      block: number;
+      signature: TransactionSignature;
+      err?: TransactionError;
+    }[],
     private onTransactionsChanged: OnTransactionsChanged,
     readonly maxTransactions: number
   ) {
@@ -29,13 +35,17 @@ export class TransactionsMonitor {
   }
 
   private addSortedSliceOfSignatures(
-    currentSignatures: { block: number; signature: TransactionSignature }[]
+    currentSignatures: {
+      block: number;
+      signature: TransactionSignature;
+      err?: TransactionError;
+    }[]
   ) {
     const sorted = Array.from(currentSignatures).sort(
       ({ block: blockA }, { block: blockB }) => (blockA < blockB ? -1 : 1)
     );
     const len = sorted.length;
-    for (const { block, signature } of sorted.slice(
+    for (const { block, signature, err } of sorted.slice(
       Math.max(len - this.maxTransactions, 0),
       len
     )) {
@@ -43,16 +53,19 @@ export class TransactionsMonitor {
         signature,
         block,
         index: ++this.transactionCount,
+        err,
       });
     }
   }
 
-  private onLog = (logs: Logs, ctx: Context) => {
+  private onLog = async (logs: Logs, ctx: Context) => {
     const txsBefore = Array.from(this.latestTransactions);
+    const err = (await this.getTransactionError(logs.signature)) ?? undefined;
     this.latestTransactions.push({
       signature: logs.signature,
       block: ctx.slot,
       index: ++this.transactionCount,
+      err,
     });
     this._purgeOldSignatures();
     this.update(txsBefore);
@@ -66,6 +79,13 @@ export class TransactionsMonitor {
       const currentTransactions = Array.from(this.latestTransactions).reverse();
       this.onTransactionsChanged(currentTransactions);
     }
+  }
+
+  private async getTransactionError(signature: TransactionSignature) {
+    const tx = await this.connection.getTransaction(signature, {
+      commitment: "confirmed",
+    });
+    return tx?.meta?.err;
   }
 
   private _purgeOldSignatures() {
@@ -84,7 +104,11 @@ export class TransactionsMonitor {
   static instance(
     url: string,
     ammanClient: AmmanClient,
-    currentSignatures: { block: number; signature: TransactionSignature }[],
+    currentSignatures: {
+      block: number;
+      signature: TransactionSignature;
+      err?: TransactionError;
+    }[],
     onTransactionsChanged: OnTransactionsChanged,
     maxTransactions: number = TransactionsMonitor.DEFAULT_MAX_TRANSACTIONS
   ): TransactionsMonitor {
@@ -105,4 +129,18 @@ export class TransactionsMonitor {
   }
 
   static DEFAULT_MAX_TRANSACTIONS = 12;
+}
+
+// -----------------
+// Helpers
+// -----------------
+
+export async function getTransactionError(
+  connection: Connection,
+  signature: TransactionSignature
+) {
+  const tx = await connection.getTransaction(signature, {
+    commitment: "confirmed",
+  });
+  return tx?.meta?.err;
 }
