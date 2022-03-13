@@ -3,7 +3,7 @@ import {
   MSG_GET_KNOWN_ADDRESS_LABELS,
   MSG_CLEAR_ADDRESS_LABELS,
   MSG_CLEAR_TRANSACTIONS,
-  MSG_REQUEST_ACCOUNT_INFO,
+  MSG_WATCH_ACCOUNT_INFO,
   MSG_UPDATE_ACCOUNT_INFO,
 } from "@metaplex-foundation/amman";
 import EventEmitter from "events";
@@ -59,7 +59,7 @@ export class AmmanClient extends EventEmitter {
   }
 
   requestAccountInfo(accountAddress: string) {
-    this.socket.emit(MSG_REQUEST_ACCOUNT_INFO, accountAddress);
+    this.socket.emit(MSG_WATCH_ACCOUNT_INFO, accountAddress);
   }
 
   private static _instance: AmmanClient | undefined;
