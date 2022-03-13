@@ -41,7 +41,7 @@ import { NFTHeader } from "components/account/MetaplexNFTHeader";
 import { DomainsCard } from "components/account/DomainsCard";
 import isMetaplexNFT from "providers/accounts/utils/isMetaplexNFT";
 import { useResolvedAccountInfos, ResolvedAccountInfo } from "../amman";
-import { ResolvedAccountInfoCard } from "../amman/ResolvedAccountInfoCard";
+import { ResolvedAccountInfosCard } from "../amman/ResolvedAccountInfosCard";
 
 const IDENTICON_WIDTH = 64;
 
@@ -231,7 +231,7 @@ function DetailsSections({
   const { flaggedAccounts } = useFlaggedAccounts();
 
   const [accountInfos] = useResolvedAccountInfos();
-  const resolvedAccountInfo = accountInfos.get(address);
+  const resolvedAccountInfos = accountInfos.get(address);
 
   if (!info || info.status === FetchStatus.Fetching) {
     return <LoadingCard />;
@@ -244,8 +244,10 @@ function DetailsSections({
 
   const account = info.data;
   const data = account?.details?.data;
-  const tabs = getTabs(data, resolvedAccountInfo);
-
+  const space = account?.details?.space ?? 0;
+  const lamports = account?.lamports ?? 0;
+  const executable = account?.details?.executable ?? false;
+  const tabs = getTabs(space, lamports, executable, data);
   let moreTab: MoreTabs = "history";
   if (tab && tabs.filter(({ slug }) => slug === tab).length === 0) {
     return <Redirect to={{ ...location, pathname: `/address/${address}` }} />;
@@ -267,7 +269,7 @@ function DetailsSections({
           account={account}
           tab={moreTab}
           tabs={tabs}
-          resolvedAccountInfo={resolvedAccountInfo}
+          resolvedAccountInfos={resolvedAccountInfos}
         />
       }
     </>
@@ -338,12 +340,12 @@ function MoreSection({
   account,
   tab,
   tabs,
-  resolvedAccountInfo,
+  resolvedAccountInfos,
 }: {
   account: Account;
   tab: MoreTabs;
   tabs: Tab[];
-  resolvedAccountInfo?: ResolvedAccountInfo;
+  resolvedAccountInfos?: ResolvedAccountInfo[];
 }) {
   const pubkey = account.pubkey;
   const address = account.pubkey.toBase58();
@@ -405,8 +407,8 @@ function MoreSection({
       )}
       {tab === "domains" && <DomainsCard pubkey={pubkey} />}
       {tab === "resolved-info" && (
-        <ResolvedAccountInfoCard
-          resolvedAccountInfo={resolvedAccountInfo}
+        <ResolvedAccountInfosCard
+          resolvedAccountInfos={resolvedAccountInfos}
           accountAddress={address}
         />
       )}
@@ -415,8 +417,10 @@ function MoreSection({
 }
 
 function getTabs(
-  data?: ProgramData,
-  resolvedAccountInfo?: ResolvedAccountInfo
+  space: number,
+  lamports: number,
+  executable: boolean,
+  data?: ProgramData
 ): Tab[] {
   const tabs: Tab[] = [
     {
@@ -466,11 +470,13 @@ function getTabs(
       path: "/domains",
     });
   }
-  tabs.push({
-    slug: "resolved-info",
-    title: "Resolved Info",
-    path: "/resolved-info",
-  });
+  if (space > 0 && lamports > 0 && !executable) {
+    tabs.push({
+      slug: "resolved-info",
+      title: "Resolved Info",
+      path: "/resolved-info",
+    });
+  }
 
   return tabs;
 }

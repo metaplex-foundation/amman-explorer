@@ -4,18 +4,21 @@ import { TransactionInfo } from "./TransactionsMonitor";
 
 export function TransactionsMonitorView() {
   const [transactionInfos] = useTransactionsMonitor();
+  const [customAddressLabels] = useCustomAddressLabels();
   return (
     <div className="header-signatures container my-4">
       <h5>Recent Transactions</h5>
       <div className="row align-items-center">
-        {transactionInfos.map((x) => TransactionView(x))}
+        {transactionInfos.map((x) => TransactionView(x, customAddressLabels))}
       </div>
     </div>
   );
 }
 
-function TransactionView(x: TransactionInfo) {
-  const [customAddressLabels] = useCustomAddressLabels();
+function TransactionView(
+  x: TransactionInfo,
+  customAddressLabels: Map<string, string>
+) {
   const statusClass = x.err != null ? "text-warning" : "";
   let label = (
     <p

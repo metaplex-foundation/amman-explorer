@@ -79,7 +79,7 @@ export function CustomAddressLabelsProvider(props: any) {
 // Account Info
 // -----------------
 const ResolvedAccountInfoContext: React.Context<
-  Map<string, ResolvedAccountInfo>
+  Map<string, ResolvedAccountInfo[]>
 > = React.createContext(new Map());
 
 export function useResolvedAccountInfos() {
@@ -89,14 +89,14 @@ export function useResolvedAccountInfos() {
     "useResolvedAccountInfos expected to be inside AccountInfoResolverProvider"
   );
   return context as unknown as [
-    Map<string, ResolvedAccountInfo>,
-    React.Dispatch<React.SetStateAction<Map<string, ResolvedAccountInfo>>>
+    Map<string, ResolvedAccountInfo[]>,
+    React.Dispatch<React.SetStateAction<Map<string, ResolvedAccountInfo[]>>>
   ];
 }
 
 export function AccountInfoResolverProvider(props: any) {
   const [resolvedAccountInfos, setResolvedAccountInfos] = React.useState(
-    new Map() as Map<string, ResolvedAccountInfo>
+    new Map() as Map<string, ResolvedAccountInfo[]>
   );
   const value = React.useMemo(
     () => [resolvedAccountInfos, setResolvedAccountInfos],

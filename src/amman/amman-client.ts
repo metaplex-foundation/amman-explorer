@@ -42,7 +42,6 @@ export class AmmanClient extends EventEmitter {
           accountAddress: string;
           accountInfo: ResolvedAccountInfo;
         }) => {
-          console.log(args);
           this.emit(
             RESOLVED_ACCOUNT_INFO,
             args.accountAddress,

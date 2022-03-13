@@ -4,13 +4,14 @@ import { CustomAddressLabelsMonitor } from "./CustomAddressLabelsMonitor";
 
 export type ResolvedAccountInfo = {
   pretty: Record<string, any>;
+  rendered?: string;
 };
 export type HandleAccountInfoResolved = (
-  providedAccountInfos: Map<string, ResolvedAccountInfo>
+  providedAccountInfos: Map<string, ResolvedAccountInfo[]>
 ) => void;
 
 export class AccountInfoResolver {
-  readonly resolvedAccountInfos: Map<string, ResolvedAccountInfo> = new Map();
+  readonly resolvedAccountInfos: Map<string, ResolvedAccountInfo[]> = new Map();
   private constructor(
     readonly ammanClient: AmmanClient,
     readonly handleAccountInfoProvided: HandleAccountInfoResolved
@@ -33,7 +34,9 @@ export class AccountInfoResolver {
       const label = CustomAddressLabelsMonitor.instance.get(val);
       accountInfo.pretty[key] = label != null ? `${label} (${val})` : val;
     }
-    this.resolvedAccountInfos.set(accountAddress, accountInfo);
+    const currentInfos = this.resolvedAccountInfos.get(accountAddress) ?? [];
+    currentInfos.push(accountInfo);
+    this.resolvedAccountInfos.set(accountAddress, currentInfos);
     this.handleAccountInfoProvided(this.resolvedAccountInfos);
   };
 
@@ -53,6 +56,10 @@ export class AccountInfoResolver {
     ammanClient: AmmanClient,
     handleAccountInfoProvided: HandleAccountInfoResolved
   ): AccountInfoResolver {
+    if (AccountInfoResolver._instance != null) {
+      console.warn("can only set AccountInfoResolver instance once");
+      return AccountInfoResolver._instance;
+    }
     return (AccountInfoResolver._instance = new AccountInfoResolver(
       ammanClient,
       handleAccountInfoProvided
