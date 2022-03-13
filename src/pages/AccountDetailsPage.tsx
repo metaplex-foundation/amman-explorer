@@ -430,6 +430,14 @@ function getTabs(
     },
   ];
 
+  if (space > 0 && lamports > 0 && !executable) {
+    tabs.push({
+      slug: "resolved-info",
+      title: "Resolved Info",
+      path: "/resolved-info",
+    });
+  }
+
   let programTypeKey = "";
   if (data && "parsed" in data && "type" in data.parsed) {
     programTypeKey = `${data.program}:${data.parsed.type}`;
@@ -470,13 +478,5 @@ function getTabs(
       path: "/domains",
     });
   }
-  if (space > 0 && lamports > 0 && !executable) {
-    tabs.push({
-      slug: "resolved-info",
-      title: "Resolved Info",
-      path: "/resolved-info",
-    });
-  }
-
   return tabs;
 }

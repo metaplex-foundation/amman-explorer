@@ -60,7 +60,7 @@ export function RenderedResolvedAccountInfo(
   }
   return (
     <>
-      <div className="card p-3 bg-gradient-dark">
+      <div key={label} className="card p-3 bg-gradient-dark">
         <h3 className="card-header-title mb-4 text-uppercase">{label}</h3>
         {content}
       </div>
