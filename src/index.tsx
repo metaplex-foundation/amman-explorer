@@ -12,6 +12,7 @@ import { EpochProvider } from "./providers/epoch";
 import { StatsProvider } from "providers/stats";
 import { MintsProvider } from "providers/mints";
 import {
+  AccountInfoResolverProvider,
   AmmanClient,
   CustomAddressLabelsProvider,
   TransactionsMonitorProvider,
@@ -60,7 +61,11 @@ async function main() {
                             <CustomAddressLabelsProvider
                               ammanClient={ammanClient}
                             >
-                              <App />
+                              <AccountInfoResolverProvider
+                                ammanClient={ammanClient}
+                              >
+                                <App />
+                              </AccountInfoResolverProvider>
                             </CustomAddressLabelsProvider>
                           </TransactionsMonitorProvider>
                         </TransactionsProvider>
