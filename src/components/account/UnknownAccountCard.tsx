@@ -6,19 +6,11 @@ import { Address } from "components/common/Address";
 import { addressLabel } from "utils/tx";
 import { useCluster } from "providers/cluster";
 import { useTokenRegistry } from "providers/mints/token-registry";
-import { useResolvedAccountInfos } from "../../amman/providers";
 
 export function UnknownAccountCard({ account }: { account: Account }) {
   const { details, lamports } = account;
   const { cluster } = useCluster();
   const { tokenRegistry } = useTokenRegistry();
-  const [accountInfos] = useResolvedAccountInfos();
-  const accountInfo = accountInfos.get(account.pubkey.toBase58());
-  console.log({ account: account.pubkey.toBase58(), accountInfos });
-  if (accountInfo != null) {
-    // TODO(thlorenz): Render somewhere
-    console.log({ accountInfo });
-  }
   if (lamports === undefined) return null;
 
   const label = addressLabel(account.pubkey.toBase58(), cluster, tokenRegistry);
