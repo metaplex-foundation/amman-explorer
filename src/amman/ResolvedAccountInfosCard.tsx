@@ -29,7 +29,10 @@ export function ResolvedAccountInfosCard({
       .reverse()
       .map((x, idx) => {
         const slot = len - idx;
-        return RenderedResolvedAccountInfo(x, `${label} ${slot}`);
+        return RenderedResolvedAccountInfo(x, {
+          label: `${label} ${slot}`,
+          nestedLevel: 0,
+        });
       });
   }
 
@@ -38,14 +41,25 @@ export function ResolvedAccountInfosCard({
 
 export function RenderedResolvedAccountInfo(
   resolvedAccountInfo: ResolvedAccountInfo,
-  label: string
+  { label, nestedLevel }: { label?: string; nestedLevel: number }
 ) {
-  const rows = Object.entries(resolvedAccountInfo.pretty).map(([key, val]) => (
-    <tr key={key}>
-      <td className="">{key}</td>
-      <td className="text-lg-end font-monospace">{val} </td>
-    </tr>
-  ));
+  const rows = Object.entries(resolvedAccountInfo.pretty).map(([key, val]) => {
+    if (!Array.isArray(val) && val != null && typeof val === "object") {
+      val = RenderedResolvedAccountInfo(
+        { pretty: val },
+        { nestedLevel: (nestedLevel ?? 0) + 1, label }
+      );
+    } else {
+      val =
+        val === undefined ? "undefined" : val == null ? "null" : val.toString();
+    }
+    return (
+      <tr key={`${key}- ${nestedLevel}`}>
+        <td className="">{key}</td>
+        <td className="text-lg-end font-monospace">{val} </td>
+      </tr>
+    );
+  });
   let content;
   if (resolvedAccountInfo.rendered != null) {
     content = (
@@ -58,7 +72,11 @@ export function RenderedResolvedAccountInfo(
   } else {
     content = <TableCardBody>{rows}</TableCardBody>;
   }
-  return (
+  return nestedLevel > 0 ? (
+    <div key={`${label}-${nestedLevel}`} className="p-3 table-bordered">
+      {content}
+    </div>
+  ) : (
     <>
       <div key={label} className="card p-3 bg-gradient-dark">
         <h3 className="card-header-title mb-4 text-uppercase">{label}</h3>
