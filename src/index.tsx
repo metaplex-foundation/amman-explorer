@@ -29,7 +29,7 @@ async function main() {
   if (!(await verifyLocalCluster())) {
     ReactDOM.render(
       <div>
-        <h2>Failed to connect to local test validator at {LOCALHOST}</h2>
+        <h2>Failed to connect to local test validator Amman at {LOCALHOST}</h2>
         <div>
           Please start one, ideally via{" "}
           <a href="https://github.com/metaplex-foundation/amman">amman</a>.
@@ -93,8 +93,7 @@ main().catch((err: any) => {
 async function verifyLocalCluster() {
   const connection = new Connection(LOCALHOST);
   try {
-    const clusterNodes = await connection.getClusterNodes();
-    console.log({ clusterNodes });
+    await connection.getClusterNodes();
     return true;
   } catch (err) {
     return false;
