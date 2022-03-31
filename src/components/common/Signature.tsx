@@ -32,7 +32,7 @@ export function Signature({
     ) : (
       <>
         <span>{addressLabel}</span>
-        <span className="opacity-25 display-6 ms-3">{signature}</span>
+        <span className="opacity-25 display-6 ms-3">{signatureLabel}</span>
       </>
     );
 

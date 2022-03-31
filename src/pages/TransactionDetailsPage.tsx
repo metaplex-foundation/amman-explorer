@@ -204,7 +204,8 @@ function StatusCard({
   })();
 
   const addressLabel = customAddressLabels.get(signature);
-  const truncate = addressLabel != null;
+  const truncateChars =
+    addressLabel != null ? signature.length - addressLabel.length : undefined;
   return (
     <div className="card">
       <div className="card-header align-items-center">
@@ -228,7 +229,6 @@ function StatusCard({
           </button>
         )}
       </div>
-
       <TableCardBody>
         <tr>
           <td>Signature</td>
@@ -236,7 +236,8 @@ function StatusCard({
             <Signature
               signature={signature}
               addressLabel={addressLabel}
-              truncate={truncate}
+              truncate
+              truncateChars={truncateChars}
               alignRight
             />
           </td>

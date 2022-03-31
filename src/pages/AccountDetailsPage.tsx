@@ -40,6 +40,8 @@ import { MetaplexMetadataCard } from "components/account/MetaplexMetadataCard";
 import { NFTHeader } from "components/account/MetaplexNFTHeader";
 import { DomainsCard } from "components/account/DomainsCard";
 import isMetaplexNFT from "providers/accounts/utils/isMetaplexNFT";
+import { useResolvedAccountInfos, ResolvedAccountInfo } from "../amman";
+import { ResolvedAccountInfosCard } from "../amman/ResolvedAccountInfosCard";
 
 const IDENTICON_WIDTH = 64;
 
@@ -228,6 +230,9 @@ function DetailsSections({
   const location = useLocation();
   const { flaggedAccounts } = useFlaggedAccounts();
 
+  const [accountInfos] = useResolvedAccountInfos();
+  const resolvedAccountInfos = accountInfos.get(address);
+
   if (!info || info.status === FetchStatus.Fetching) {
     return <LoadingCard />;
   } else if (
@@ -239,8 +244,10 @@ function DetailsSections({
 
   const account = info.data;
   const data = account?.details?.data;
-  const tabs = getTabs(data);
-
+  const space = account?.details?.space ?? 0;
+  const lamports = account?.lamports ?? 0;
+  const executable = account?.details?.executable ?? false;
+  const tabs = getTabs(space, lamports, executable, data);
   let moreTab: MoreTabs = "history";
   if (tab && tabs.filter(({ slug }) => slug === tab).length === 0) {
     return <Redirect to={{ ...location, pathname: `/address/${address}` }} />;
@@ -257,7 +264,14 @@ function DetailsSections({
         </div>
       )}
       {<InfoSection account={account} />}
-      {<MoreSection account={account} tab={moreTab} tabs={tabs} />}
+      {
+        <MoreSection
+          account={account}
+          tab={moreTab}
+          tabs={tabs}
+          resolvedAccountInfos={resolvedAccountInfos}
+        />
+      }
     </>
   );
 }
@@ -319,16 +333,19 @@ export type MoreTabs =
   | "instructions"
   | "rewards"
   | "metadata"
-  | "domains";
+  | "domains"
+  | "resolved-info";
 
 function MoreSection({
   account,
   tab,
   tabs,
+  resolvedAccountInfos,
 }: {
   account: Account;
   tab: MoreTabs;
   tabs: Tab[];
+  resolvedAccountInfos?: ResolvedAccountInfo[];
 }) {
   const pubkey = account.pubkey;
   const address = account.pubkey.toBase58();
@@ -389,11 +406,22 @@ function MoreSection({
         />
       )}
       {tab === "domains" && <DomainsCard pubkey={pubkey} />}
+      {tab === "resolved-info" && (
+        <ResolvedAccountInfosCard
+          resolvedAccountInfos={resolvedAccountInfos}
+          accountAddress={address}
+        />
+      )}
     </>
   );
 }
 
-function getTabs(data?: ProgramData): Tab[] {
+function getTabs(
+  space: number,
+  lamports: number,
+  executable: boolean,
+  data?: ProgramData
+): Tab[] {
   const tabs: Tab[] = [
     {
       slug: "history",
@@ -401,6 +429,14 @@ function getTabs(data?: ProgramData): Tab[] {
       path: "",
     },
   ];
+
+  if (space > 0 && lamports > 0 && !executable) {
+    tabs.push({
+      slug: "resolved-info",
+      title: "Resolved Info",
+      path: "/resolved-info",
+    });
+  }
 
   let programTypeKey = "";
   if (data && "parsed" in data && "type" in data.parsed) {
@@ -442,6 +478,5 @@ function getTabs(data?: ProgramData): Tab[] {
       path: "/domains",
     });
   }
-
   return tabs;
 }

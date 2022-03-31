@@ -1,4 +1,10 @@
-import { AmmanClient, UPDATE_ADDRESS_LABELS } from "./amman-client";
+import { AccountInfoResolver } from "./AccountInfoResolver";
+import {
+  AmmanClient,
+  CLEAR_ADDRESS_LABELS,
+  UPDATE_ADDRESS_LABELS,
+} from "./amman-client";
+import { strict as assert } from "assert";
 
 export type HandleAddressLabelsChanged = (labels: Map<string, string>) => void;
 
@@ -11,6 +17,7 @@ export class CustomAddressLabelsMonitor {
   ) {
     this.ammanClient
       .on(UPDATE_ADDRESS_LABELS, this.onUpdateLabels)
+      .on(CLEAR_ADDRESS_LABELS, this.onClearLabels)
       .requestKnownAddressLabels();
   }
 
@@ -20,6 +27,16 @@ export class CustomAddressLabelsMonitor {
       ...Object.entries(labels),
     ]);
     this.handleAddressLablesChanged(this._labels);
+    for (const address of Object.keys(labels)) {
+      if (address.length <= 44) {
+        AccountInfoResolver.instance.requestAccountInfo(address);
+      }
+    }
+  };
+
+  private onClearLabels = () => {
+    this._labels.clear();
+    this.handleAddressLablesChanged(this._labels);
   };
 
   get(address: string) {
@@ -27,7 +44,14 @@ export class CustomAddressLabelsMonitor {
   }
 
   private static _instance?: CustomAddressLabelsMonitor;
-  static instance(
+  static get instance() {
+    assert(
+      this._instance != null,
+      "CustomAddressLabelsMonitor.setInstance needs to be called first"
+    );
+    return this._instance;
+  }
+  static setInstance(
     ammanClient: AmmanClient,
     handleAddressLablesChanged: HandleAddressLabelsChanged
   ): CustomAddressLabelsMonitor {

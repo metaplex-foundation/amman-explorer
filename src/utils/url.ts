@@ -1,6 +1,10 @@
 import { useLocation } from "react-router-dom";
 import { Location } from "history";
 
+export function getQuery() {
+  return new URLSearchParams(window.location.search);
+}
+
 export function useQuery() {
   return new URLSearchParams(useLocation().search);
 }

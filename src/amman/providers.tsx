@@ -4,6 +4,10 @@ import { strict as assert } from "assert";
 import { useCluster } from "../providers/cluster";
 import React from "react";
 import { CustomAddressLabelsMonitor } from "./CustomAddressLabelsMonitor";
+import {
+  AccountInfoResolver,
+  ResolvedAccountInfo,
+} from "./AccountInfoResolver";
 
 // -----------------
 // TransactionsMonitor
@@ -32,7 +36,12 @@ export function TransactionsMonitorProvider(props: any) {
     () => [transactionInfos, setTransactionInfos],
     [transactionInfos]
   );
-  TransactionsMonitor.instance(url, props.signatures, setTransactionInfos);
+  TransactionsMonitor.instance(
+    url,
+    props.ammanClient,
+    props.signatures,
+    setTransactionInfos
+  );
   return <TransactionsMonitorContext.Provider value={value} {...props} />;
 }
 
@@ -62,6 +71,37 @@ export function CustomAddressLabelsProvider(props: any) {
     () => [addressLabels, setAddressLabels],
     [addressLabels]
   );
-  CustomAddressLabelsMonitor.instance(props.ammanClient, setAddressLabels);
+  CustomAddressLabelsMonitor.setInstance(props.ammanClient, setAddressLabels);
   return <CustomAddressLabelsContext.Provider value={value} {...props} />;
+}
+
+// -----------------
+// Account Info
+// -----------------
+const ResolvedAccountInfoContext: React.Context<
+  Map<string, ResolvedAccountInfo[]>
+> = React.createContext(new Map());
+
+export function useResolvedAccountInfos() {
+  const context = React.useContext(ResolvedAccountInfoContext);
+  assert(
+    context != null,
+    "useResolvedAccountInfos expected to be inside AccountInfoResolverProvider"
+  );
+  return context as unknown as [
+    Map<string, ResolvedAccountInfo[]>,
+    React.Dispatch<React.SetStateAction<Map<string, ResolvedAccountInfo[]>>>
+  ];
+}
+
+export function AccountInfoResolverProvider(props: any) {
+  const [resolvedAccountInfos, setResolvedAccountInfos] = React.useState(
+    new Map() as Map<string, ResolvedAccountInfo[]>
+  );
+  const value = React.useMemo(
+    () => [resolvedAccountInfos, setResolvedAccountInfos],
+    [resolvedAccountInfos]
+  );
+  AccountInfoResolver.setInstance(props.ammanClient, setResolvedAccountInfos);
+  return <ResolvedAccountInfoContext.Provider value={value} {...props} />;
 }

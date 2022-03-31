@@ -2,13 +2,16 @@ import {
   Connection,
   Context,
   Logs,
+  TransactionError,
   TransactionSignature,
 } from "@solana/web3.js";
+import { AmmanClient, CLEAR_TRANSACTIONS } from "./amman-client";
 
 export type TransactionInfo = {
   signature: TransactionSignature;
   block: number;
   index: number;
+  err?: TransactionError;
 };
 export type OnTransactionsChanged = (transactions: TransactionInfo[]) => void;
 export class TransactionsMonitor {
@@ -16,23 +19,33 @@ export class TransactionsMonitor {
   transactionCount: number = 0;
   private constructor(
     readonly connection: Connection,
-    initialSignatures: { block: number; signature: TransactionSignature }[],
+    readonly ammanClient: AmmanClient,
+    initialSignatures: {
+      block: number;
+      signature: TransactionSignature;
+      err?: TransactionError;
+    }[],
     private onTransactionsChanged: OnTransactionsChanged,
     readonly maxTransactions: number
   ) {
     this.connection.onLogs("all", this.onLog);
+    this.ammanClient.on(CLEAR_TRANSACTIONS, this.onClearTransactions);
     this.addSortedSliceOfSignatures(initialSignatures);
     this.update();
   }
 
   private addSortedSliceOfSignatures(
-    currentSignatures: { block: number; signature: TransactionSignature }[]
+    currentSignatures: {
+      block: number;
+      signature: TransactionSignature;
+      err?: TransactionError;
+    }[]
   ) {
     const sorted = Array.from(currentSignatures).sort(
       ({ block: blockA }, { block: blockB }) => (blockA < blockB ? -1 : 1)
     );
     const len = sorted.length;
-    for (const { block, signature } of sorted.slice(
+    for (const { block, signature, err } of sorted.slice(
       Math.max(len - this.maxTransactions, 0),
       len
     )) {
@@ -40,16 +53,19 @@ export class TransactionsMonitor {
         signature,
         block,
         index: ++this.transactionCount,
+        err,
       });
     }
   }
 
-  private onLog = (logs: Logs, ctx: Context) => {
+  private onLog = async (logs: Logs, ctx: Context) => {
     const txsBefore = Array.from(this.latestTransactions);
+    const err = (await this.getTransactionError(logs.signature)) ?? undefined;
     this.latestTransactions.push({
       signature: logs.signature,
       block: ctx.slot,
       index: ++this.transactionCount,
+      err,
     });
     this._purgeOldSignatures();
     this.update(txsBefore);
@@ -65,6 +81,13 @@ export class TransactionsMonitor {
     }
   }
 
+  private async getTransactionError(signature: TransactionSignature) {
+    const tx = await this.connection.getTransaction(signature, {
+      commitment: "confirmed",
+    });
+    return tx?.meta?.err;
+  }
+
   private _purgeOldSignatures() {
     // Assuming they are sorted by block ascending
     while (this.latestTransactions.length > this.maxTransactions) {
@@ -72,10 +95,20 @@ export class TransactionsMonitor {
     }
   }
 
+  private onClearTransactions = () => {
+    this.latestTransactions.length = 0;
+    this.transactionCount = 0;
+  };
+
   private static _instance?: TransactionsMonitor;
   static instance(
     url: string,
-    currentSignatures: { block: number; signature: TransactionSignature }[],
+    ammanClient: AmmanClient,
+    currentSignatures: {
+      block: number;
+      signature: TransactionSignature;
+      err?: TransactionError;
+    }[],
     onTransactionsChanged: OnTransactionsChanged,
     maxTransactions: number = TransactionsMonitor.DEFAULT_MAX_TRANSACTIONS
   ): TransactionsMonitor {
@@ -87,6 +120,7 @@ export class TransactionsMonitor {
     const connection = new Connection(url, "singleGossip");
     TransactionsMonitor._instance = new TransactionsMonitor(
       connection,
+      ammanClient,
       currentSignatures,
       onTransactionsChanged,
       maxTransactions
@@ -95,4 +129,18 @@ export class TransactionsMonitor {
   }
 
   static DEFAULT_MAX_TRANSACTIONS = 12;
+}
+
+// -----------------
+// Helpers
+// -----------------
+
+export async function getTransactionError(
+  connection: Connection,
+  signature: TransactionSignature
+) {
+  const tx = await connection.getTransaction(signature, {
+    commitment: "confirmed",
+  });
+  return tx?.meta?.err;
 }
