@@ -92,6 +92,7 @@ export enum PROGRAM_NAMES {
 }
 
 const ALL_CLUSTERS = [
+  Cluster.Amman,
   Cluster.Custom,
   Cluster.Devnet,
   Cluster.Testnet,

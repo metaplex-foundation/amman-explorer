@@ -9,6 +9,7 @@ import { useQuery } from "../utils/url";
 import { useHistory, useLocation } from "react-router-dom";
 import { reportError } from "utils/sentry";
 import { localStorageIsAvailable } from "utils";
+import { LOCALHOST } from "@metaplex-foundation/amman";
 
 export enum ClusterStatus {
   Connected,
@@ -17,6 +18,7 @@ export enum ClusterStatus {
 }
 
 export enum Cluster {
+  Amman,
   MainnetBeta,
   Testnet,
   Devnet,
@@ -24,14 +26,27 @@ export enum Cluster {
 }
 
 export const CLUSTERS = [
+  Cluster.Amman,
   Cluster.MainnetBeta,
   Cluster.Testnet,
   Cluster.Devnet,
   Cluster.Custom,
 ];
 
+export function tokenRegistryClusterSlug(cluster: Cluster): string {
+  switch (cluster) {
+    case Cluster.Amman:
+    case Cluster.Custom:
+      return "devnet";
+    default:
+      return clusterSlug(cluster);
+  }
+}
+
 export function clusterSlug(cluster: Cluster): string {
   switch (cluster) {
+    case Cluster.Amman:
+      return "amman";
     case Cluster.MainnetBeta:
       return "mainnet-beta";
     case Cluster.Testnet:
@@ -45,6 +60,8 @@ export function clusterSlug(cluster: Cluster): string {
 
 export function clusterName(cluster: Cluster): string {
   switch (cluster) {
+    case Cluster.Amman:
+      return "Amman";
     case Cluster.MainnetBeta:
       return "Mainnet Beta";
     case Cluster.Testnet:
@@ -59,13 +76,16 @@ export function clusterName(cluster: Cluster): string {
 export const MAINNET_BETA_URL = clusterApiUrl("mainnet-beta");
 export const TESTNET_URL = clusterApiUrl("testnet");
 export const DEVNET_URL = clusterApiUrl("devnet");
+export const LOCALHOST_URL = LOCALHOST;
 
 export function clusterUrl(cluster: Cluster, customUrl: string): string {
   switch (cluster) {
+    case Cluster.Amman:
+      return LOCALHOST_URL;
     case Cluster.Devnet:
       return DEVNET_URL.replace("api", "explorer-api");
     case Cluster.MainnetBeta:
-      return "http://localhost:8899"; // MAINNET_BETA_URL.replace("api", "explorer-api");
+      return MAINNET_BETA_URL.replace("api", "explorer-api");
     case Cluster.Testnet:
       return TESTNET_URL.replace("api", "explorer-api");
     case Cluster.Custom:
@@ -73,7 +93,7 @@ export function clusterUrl(cluster: Cluster, customUrl: string): string {
   }
 }
 
-export const DEFAULT_CLUSTER = Cluster.MainnetBeta;
+export const DEFAULT_CLUSTER = Cluster.Amman;
 const DEFAULT_CUSTOM_URL = "http://localhost:8899";
 
 type Action = State;
@@ -113,6 +133,8 @@ function clusterReducer(state: State, action: Action): State {
 function parseQuery(query: URLSearchParams): Cluster {
   const clusterParam = query.get("cluster");
   switch (clusterParam) {
+    case "amman":
+      return Cluster.Amman;
     case "custom":
       return Cluster.Custom;
     case "devnet":
@@ -121,7 +143,7 @@ function parseQuery(query: URLSearchParams): Cluster {
       return Cluster.Testnet;
     case "mainnet-beta":
     default:
-      return Cluster.MainnetBeta;
+      return Cluster.Amman;
   }
 }
 

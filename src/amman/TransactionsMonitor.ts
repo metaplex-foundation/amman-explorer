@@ -1,3 +1,5 @@
+import { LOCALHOST } from "@metaplex-foundation/amman";
+import { strict as assert } from "assert";
 import {
   Connection,
   Context,
@@ -6,6 +8,20 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import { AmmanClient, CLEAR_TRANSACTIONS } from "./amman-client";
+import { getLatestTransactionSignatures } from "./queries";
+
+export async function transactionHistory() {
+  const connection = new Connection(LOCALHOST);
+  const currentTransactionSignatures = await getLatestTransactionSignatures();
+
+  const currentTransactionSignaturesWithErrorStatus = await Promise.all(
+    currentTransactionSignatures.map(async (x) => {
+      const err = await getTransactionError(connection, x.signature);
+      return { ...x, err };
+    })
+  );
+  return currentTransactionSignaturesWithErrorStatus;
+}
 
 export type TransactionInfo = {
   signature: TransactionSignature;
@@ -16,21 +32,25 @@ export type TransactionInfo = {
 export type OnTransactionsChanged = (transactions: TransactionInfo[]) => void;
 export class TransactionsMonitor {
   readonly latestTransactions: TransactionInfo[] = [];
+  loadedTransactionHistory: boolean;
   transactionCount: number = 0;
   private constructor(
     readonly connection: Connection,
     readonly ammanClient: AmmanClient,
-    initialSignatures: {
-      block: number;
-      signature: TransactionSignature;
-      err?: TransactionError;
-    }[],
     private onTransactionsChanged: OnTransactionsChanged,
     readonly maxTransactions: number
   ) {
     this.connection.onLogs("all", this.onLog);
     this.ammanClient.on(CLEAR_TRANSACTIONS, this.onClearTransactions);
-    this.addSortedSliceOfSignatures(initialSignatures);
+    this.loadedTransactionHistory = false;
+    this.update();
+  }
+
+  async loadTransactionHistory() {
+    this.latestTransactions.length = 0;
+    this.loadedTransactionHistory = true;
+    const currentSignatures = await transactionHistory();
+    this.addSortedSliceOfSignatures(currentSignatures);
     this.update();
   }
 
@@ -38,7 +58,7 @@ export class TransactionsMonitor {
     currentSignatures: {
       block: number;
       signature: TransactionSignature;
-      err?: TransactionError;
+      err: TransactionError | null | undefined;
     }[]
   ) {
     const sorted = Array.from(currentSignatures).sort(
@@ -53,7 +73,7 @@ export class TransactionsMonitor {
         signature,
         block,
         index: ++this.transactionCount,
-        err,
+        err: err ?? undefined,
       });
     }
   }
@@ -101,14 +121,10 @@ export class TransactionsMonitor {
   };
 
   private static _instance?: TransactionsMonitor;
+
   static instance(
     url: string,
     ammanClient: AmmanClient,
-    currentSignatures: {
-      block: number;
-      signature: TransactionSignature;
-      err?: TransactionError;
-    }[],
     onTransactionsChanged: OnTransactionsChanged,
     maxTransactions: number = TransactionsMonitor.DEFAULT_MAX_TRANSACTIONS
   ): TransactionsMonitor {
@@ -121,9 +137,15 @@ export class TransactionsMonitor {
     TransactionsMonitor._instance = new TransactionsMonitor(
       connection,
       ammanClient,
-      currentSignatures,
       onTransactionsChanged,
       maxTransactions
+    );
+    return TransactionsMonitor._instance;
+  }
+  static get existingInstance() {
+    assert(
+      TransactionsMonitor._instance != null,
+      "expected existing instance of TransactionsMonitor"
     );
     return TransactionsMonitor._instance;
   }

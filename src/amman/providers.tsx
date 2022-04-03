@@ -36,12 +36,7 @@ export function TransactionsMonitorProvider(props: any) {
     () => [transactionInfos, setTransactionInfos],
     [transactionInfos]
   );
-  TransactionsMonitor.instance(
-    url,
-    props.ammanClient,
-    props.signatures,
-    setTransactionInfos
-  );
+  TransactionsMonitor.instance(url, props.ammanClient, setTransactionInfos);
   return <TransactionsMonitorContext.Provider value={value} {...props} />;
 }
 
