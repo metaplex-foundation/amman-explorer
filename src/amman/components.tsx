@@ -1,46 +1,32 @@
-import { Link, useHistory, useLocation } from "react-router-dom";
-import { useQuery } from "../utils/url";
+import { Link } from "react-router-dom";
 import { useCustomAddressLabels, useTransactionsMonitor } from "./providers";
 import { TransactionInfo, TransactionsMonitor } from "./TransactionsMonitor";
 
 export function TransactionsMonitorView() {
   const [transactionInfos] = useTransactionsMonitor();
   const [customAddressLabels] = useCustomAddressLabels();
-  const query = useQuery();
-  const history = useHistory();
-  const location = useLocation();
 
-  function reloadWithHistory() {
-    query.set("loadTransactionHistory", "true");
-    history.push({ ...location, search: query.toString() });
-    window.location.reload();
+  function loadHistory() {
+    // TODO(thlorenz): Eventually hould add some kind of indicator that this is loading since this can take quite a while
+    TransactionsMonitor.existingInstance.loadTransactionHistory();
   }
-  function reloadWithoutHistory() {
-    query.delete("loadTransactionHistory");
-    history.push({ ...location, search: query.toString() });
-    window.location.reload();
-  }
-
   const loadedTxHistory =
-    query.has("loadTransactionHistory") ||
-    TransactionsMonitor.existingInstance.instantiatedWithTransactionHistory;
+    TransactionsMonitor.existingInstance.loadedTransactionHistory;
 
-  const linkLabel = loadedTxHistory
-    ? "Reload without History"
-    : "Reload with History";
-  const onClick = loadedTxHistory ? reloadWithoutHistory : reloadWithHistory;
+  const linkLabel = !loadedTxHistory ? (
+    <Link
+      className="fs-5 d-inline ms-4 text-muted float-end"
+      to={"#"}
+      onClick={loadHistory}
+    >
+      Load History
+    </Link>
+  ) : null;
 
   return (
     <div className="header-signatures container my-4">
       <h5 className="d-inline">Recent Transactions</h5>
-      <Link
-        className="fs-5 d-inline ms-4 text-muted float-end"
-        to={"#"}
-        onClick={onClick}
-      >
-        {linkLabel}
-      </Link>
-
+      {linkLabel}
       <div className="row align-items-center">
         {transactionInfos.map((x) => TransactionView(x, customAddressLabels))}
       </div>

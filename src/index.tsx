@@ -20,7 +20,6 @@ import {
 import { LOCALHOST } from "./amman/consts";
 import { Connection } from "@solana/web3.js";
 import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
-import { transactionHistory } from "./amman/TransactionsMonitor";
 
 async function main() {
   const ammanClient = initAmmanClient();
@@ -36,9 +35,6 @@ async function main() {
       document.getElementById("root")
     );
   } else {
-    const currentTransactionSignaturesWithErrorStatus =
-      await transactionHistory();
-
     ReactDOM.render(
       <Router>
         <ClusterProvider>
@@ -52,9 +48,6 @@ async function main() {
                         <TransactionsProvider>
                           <TransactionsMonitorProvider
                             ammanClient={ammanClient}
-                            signatures={
-                              currentTransactionSignaturesWithErrorStatus
-                            }
                           >
                             <CustomAddressLabelsProvider
                               ammanClient={ammanClient}
