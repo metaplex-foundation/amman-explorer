@@ -20,7 +20,7 @@ import {
 import { LOCALHOST } from "./amman/consts";
 import { Connection } from "@solana/web3.js";
 import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
-import {transactionHistory} from "./amman/TransactionsMonitor";
+import { transactionHistory } from "./amman/TransactionsMonitor";
 
 async function main() {
   const ammanClient = initAmmanClient();

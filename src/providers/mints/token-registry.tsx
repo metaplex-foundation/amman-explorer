@@ -6,7 +6,11 @@ import {
   TokenListContainer,
   Strategy,
 } from "@solana/spl-token-registry";
-import { Cluster, tokenRegistryClusterSlug, useCluster } from "providers/cluster";
+import {
+  Cluster,
+  tokenRegistryClusterSlug,
+  useCluster,
+} from "providers/cluster";
 
 const TokenRegistryContext = React.createContext<TokenInfoMap>(new Map());
 
@@ -25,7 +29,9 @@ export function TokenRegistryProvider({ children }: ProviderProps) {
         const tokenList =
           cluster === Cluster.Custom
             ? []
-            : tokens.filterByClusterSlug(tokenRegistryClusterSlug(cluster)).getList();
+            : tokens
+                .filterByClusterSlug(tokenRegistryClusterSlug(cluster))
+                .getList();
 
         setTokenRegistry(
           tokenList.reduce((map: TokenInfoMap, item: TokenInfo) => {

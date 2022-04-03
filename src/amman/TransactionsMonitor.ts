@@ -1,5 +1,5 @@
-import {LOCALHOST} from "@metaplex-foundation/amman";
-import { strict as assert } from 'assert'
+import { LOCALHOST } from "@metaplex-foundation/amman";
+import { strict as assert } from "assert";
 import {
   Connection,
   Context,
@@ -7,13 +7,13 @@ import {
   TransactionError,
   TransactionSignature,
 } from "@solana/web3.js";
-import {getQuery} from "../utils/url";
+import { getQuery } from "../utils/url";
 import { AmmanClient, CLEAR_TRANSACTIONS } from "./amman-client";
-import {getLatestTransactionSignatures} from "./queries";
+import { getLatestTransactionSignatures } from "./queries";
 
 export async function transactionHistory() {
   const query = getQuery();
-  const loadHistory = query.has("loadTransactionHistory")
+  const loadHistory = query.has("loadTransactionHistory");
   const connection = new Connection(LOCALHOST);
   const currentTransactionSignatures = loadHistory
     ? await getLatestTransactionSignatures()
@@ -37,7 +37,7 @@ export type TransactionInfo = {
 export type OnTransactionsChanged = (transactions: TransactionInfo[]) => void;
 export class TransactionsMonitor {
   readonly latestTransactions: TransactionInfo[] = [];
-  readonly instantiatedWithTransactionHistory
+  readonly instantiatedWithTransactionHistory;
   transactionCount: number = 0;
   private constructor(
     readonly connection: Connection,
@@ -150,8 +150,11 @@ export class TransactionsMonitor {
     );
     return TransactionsMonitor._instance;
   }
-  static get existingInstance() { 
-    assert(TransactionsMonitor._instance != null, 'expected existing instance of TransactionsMonitor')
+  static get existingInstance() {
+    assert(
+      TransactionsMonitor._instance != null,
+      "expected existing instance of TransactionsMonitor"
+    );
     return TransactionsMonitor._instance;
   }
 

@@ -76,7 +76,7 @@ export function clusterName(cluster: Cluster): string {
 export const MAINNET_BETA_URL = clusterApiUrl("mainnet-beta");
 export const TESTNET_URL = clusterApiUrl("testnet");
 export const DEVNET_URL = clusterApiUrl("devnet");
-export const LOCALHOST_URL = LOCALHOST
+export const LOCALHOST_URL = LOCALHOST;
 
 export function clusterUrl(cluster: Cluster, customUrl: string): string {
   switch (cluster) {
@@ -93,7 +93,7 @@ export function clusterUrl(cluster: Cluster, customUrl: string): string {
   }
 }
 
-export const DEFAULT_CLUSTER = Cluster.Amman
+export const DEFAULT_CLUSTER = Cluster.Amman;
 const DEFAULT_CUSTOM_URL = "http://localhost:8899";
 
 type Action = State;
