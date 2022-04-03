@@ -11,32 +11,40 @@ export function TransactionsMonitorView() {
   const history = useHistory();
   const location = useLocation();
 
-  // TODO(thlorenz): This reloads the page which is kinda hacky, but
-  // it'll be tricky to update the TransactionsMonitor after it was initialized
   const loadTxHistory = query.has("loadTransactionHistory")
-  const onLoadHistoryInput = useDebounceCallback((event: any) => {
-    console.log(event.target.checked)
-      if (event.target.checked) {
-        query.set("loadTransactionHistory", "true");
-      } else {
-        query.delete("loadTransactionHistory")
-      }
+
+  // TODO(thlorenz): Make those buttons just a simple link
+  const historyToggleLink = { ...location, search: query.toString() }
+
+  function onReloadWithHistory() {
+      query.set("loadTransactionHistory", "true");
       history.push({ ...location, search: query.toString() });
       window.location.reload()
-  }, 200);
+  }
+  function onReloadWithoutHistory() {
+      query.delete("loadTransactionHistory");
+      history.push({ ...location, search: query.toString() });
+      window.location.reload()
+  }
 
   return (
     <div className="header-signatures container my-4">
       <h5 className="d-inline">Recent Transactions</h5>
       <div className="fs-5 d-inline ms-4 text-muted">
-        <label className="form-check-label secondary" htmlFor="historyToggle">Include History</label>
-        <input
-          type="checkbox"
-          id="historyToggle"
-          defaultChecked={loadTxHistory}
-          className="form-check-input ms-2 mt-1"
-          onChange={onLoadHistoryInput}
-        />
+        {!loadTxHistory &&
+          <button
+            className="btn btn-secondary fs-6"
+            type="button"
+            onClick={onReloadWithHistory}
+          >Reload with History</button> 
+        }
+        {loadTxHistory &&
+          <Link
+            className="btn btn-secondary fs-6 float-end pb-0"
+            style={{marginLeft: '-200px' }}
+            click={onReloadWithoutHistory}
+          >Reload without History</button> 
+        }
       </div>
       <div className="row align-items-center">
         {transactionInfos.map((x) => TransactionView(x, customAddressLabels))}
