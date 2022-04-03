@@ -1,4 +1,5 @@
 import {LOCALHOST} from "@metaplex-foundation/amman";
+import { strict as assert } from 'assert'
 import {
   Connection,
   Context,
@@ -10,15 +11,9 @@ import {getQuery} from "../utils/url";
 import { AmmanClient, CLEAR_TRANSACTIONS } from "./amman-client";
 import {getLatestTransactionSignatures} from "./queries";
 
-export function parseLoadHistory(query: URLSearchParams): boolean {
-  const loadTransactionHistory = query.get("loadTransactionHistory");
-  if (loadTransactionHistory == null) return false;
-  return loadTransactionHistory === "true";
-}
-
 export async function transactionHistory() {
   const query = getQuery();
-  const loadHistory = parseLoadHistory(query);
+  const loadHistory = query.has("loadTransactionHistory")
   const connection = new Connection(LOCALHOST);
   const currentTransactionSignatures = loadHistory
     ? await getLatestTransactionSignatures()
@@ -42,6 +37,7 @@ export type TransactionInfo = {
 export type OnTransactionsChanged = (transactions: TransactionInfo[]) => void;
 export class TransactionsMonitor {
   readonly latestTransactions: TransactionInfo[] = [];
+  readonly instantiatedWithTransactionHistory
   transactionCount: number = 0;
   private constructor(
     readonly connection: Connection,
@@ -54,6 +50,7 @@ export class TransactionsMonitor {
     private onTransactionsChanged: OnTransactionsChanged,
     readonly maxTransactions: number
   ) {
+    this.instantiatedWithTransactionHistory = initialSignatures.length > 0;
     this.connection.onLogs("all", this.onLog);
     this.ammanClient.on(CLEAR_TRANSACTIONS, this.onClearTransactions);
     this.addSortedSliceOfSignatures(initialSignatures);
@@ -151,6 +148,10 @@ export class TransactionsMonitor {
       onTransactionsChanged,
       maxTransactions
     );
+    return TransactionsMonitor._instance;
+  }
+  static get existingInstance() { 
+    assert(TransactionsMonitor._instance != null, 'expected existing instance of TransactionsMonitor')
     return TransactionsMonitor._instance;
   }
 

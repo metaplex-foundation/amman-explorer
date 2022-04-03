@@ -1,8 +1,7 @@
-import {useDebounceCallback} from "@react-hook/debounce";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import {useQuery} from "../utils/url";
 import { useCustomAddressLabels, useTransactionsMonitor } from "./providers";
-import { TransactionInfo } from "./TransactionsMonitor";
+import { TransactionInfo, TransactionsMonitor } from "./TransactionsMonitor";
 
 export function TransactionsMonitorView() {
   const [transactionInfos] = useTransactionsMonitor();
@@ -11,41 +10,28 @@ export function TransactionsMonitorView() {
   const history = useHistory();
   const location = useLocation();
 
-  const loadTxHistory = query.has("loadTransactionHistory")
-
-  // TODO(thlorenz): Make those buttons just a simple link
-  const historyToggleLink = { ...location, search: query.toString() }
-
-  function onReloadWithHistory() {
+  function reloadWithHistory() {
       query.set("loadTransactionHistory", "true");
       history.push({ ...location, search: query.toString() });
       window.location.reload()
   }
-  function onReloadWithoutHistory() {
+  function reloadWithoutHistory() {
       query.delete("loadTransactionHistory");
       history.push({ ...location, search: query.toString() });
       window.location.reload()
   }
 
+  const loadedTxHistory = query.has("loadTransactionHistory") ||
+    TransactionsMonitor.existingInstance.instantiatedWithTransactionHistory
+
+  const linkLabel = loadedTxHistory ? 'Reload without History' : 'Reload with History'
+  const onClick = loadedTxHistory ? reloadWithoutHistory : reloadWithHistory
+
   return (
     <div className="header-signatures container my-4">
       <h5 className="d-inline">Recent Transactions</h5>
-      <div className="fs-5 d-inline ms-4 text-muted">
-        {!loadTxHistory &&
-          <button
-            className="btn btn-secondary fs-6"
-            type="button"
-            onClick={onReloadWithHistory}
-          >Reload with History</button> 
-        }
-        {loadTxHistory &&
-          <Link
-            className="btn btn-secondary fs-6 float-end pb-0"
-            style={{marginLeft: '-200px' }}
-            click={onReloadWithoutHistory}
-          >Reload without History</button> 
-        }
-      </div>
+      <Link className="fs-5 d-inline ms-4 text-muted float-end" to={"#"} onClick={onClick}>{linkLabel}</Link>
+
       <div className="row align-items-center">
         {transactionInfos.map((x) => TransactionView(x, customAddressLabels))}
       </div>
