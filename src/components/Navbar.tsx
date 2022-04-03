@@ -7,24 +7,13 @@ import { ClusterStatusButton } from "components/ClusterStatusButton";
 export function Navbar() {
   // TODO: use `collapsing` to animate collapsible navbar
   const [collapse, setCollapse] = React.useState(false);
-  // TODO(thlorenz): Total hack to fix static resources like this not working on gh-pages
-  const logo =
-    process.env.NODE_ENV === "production" ? (
-      <img
-        src="./amman-explorer/build/static/media/dark-explorer-logo.2d910a55.svg"
-        width="250"
-        alt="Solana Explorer"
-      />
-    ) : (
-      <img src={Logo} width="250" alt="Solana Explorer" />
-    );
 
   return (
     <nav className="navbar navbar-expand-md navbar-light">
       <div className="container">
         <Link to={clusterPath("/")}>
           <span>Amman</span>
-          {logo}
+          <img src={Logo} width="250" alt="Solana Explorer" />
         </Link>
 
         <button
