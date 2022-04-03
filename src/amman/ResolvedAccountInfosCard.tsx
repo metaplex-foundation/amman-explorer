@@ -54,8 +54,8 @@ export function RenderedResolvedAccountInfo(
         val === undefined ? "undefined" : val == null ? "null" : val.toString();
     }
     return (
-      <tr key={`${key}- ${nestedLevel}`}>
-        <td className="">{key}</td>
+      <tr key={`${key}-${nestedLevel}`}>
+        <td>{key}</td>
         <td className="text-lg-end font-monospace">{val} </td>
       </tr>
     );
@@ -63,11 +63,11 @@ export function RenderedResolvedAccountInfo(
   let content;
   if (resolvedAccountInfo.rendered != null) {
     content = (
-      <>
+      <div>
         <TableCardBody>{rows}</TableCardBody>
         <h4>Rendered</h4>
         <pre>{resolvedAccountInfo.rendered}</pre>
-      </>
+      </div>
     );
   } else {
     content = <TableCardBody>{rows}</TableCardBody>;
@@ -77,11 +77,9 @@ export function RenderedResolvedAccountInfo(
       {content}
     </div>
   ) : (
-    <>
-      <div key={label} className="card p-3 bg-gradient-dark">
-        <h3 className="card-header-title mb-4 text-uppercase">{label}</h3>
-        {content}
-      </div>
-    </>
+    <div key={label} className="card p-3 bg-gradient-dark">
+      <h3 className="card-header-title mb-4 text-uppercase">{label}</h3>
+      {content}
+    </div>
   );
 }
