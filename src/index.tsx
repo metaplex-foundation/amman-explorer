@@ -17,12 +17,10 @@ import {
   CustomAddressLabelsProvider,
   TransactionsMonitorProvider,
 } from "./amman";
-import { getLatestTransactionSignatures } from "./amman/queries";
 import { LOCALHOST } from "./amman/consts";
 import { Connection } from "@solana/web3.js";
 import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
-import { getQuery } from "./utils/url";
-import { getTransactionError } from "./amman/TransactionsMonitor";
+import {transactionHistory} from "./amman/TransactionsMonitor";
 
 async function main() {
   const ammanClient = initAmmanClient();
@@ -100,31 +98,8 @@ async function verifyLocalCluster() {
   }
 }
 
-function parseLoadHistory(query: URLSearchParams): boolean {
-  const loadTransactionHistory = query.get("loadTransactionHistory");
-  if (loadTransactionHistory == null) return false;
-  return loadTransactionHistory === "true";
-}
-
 function initAmmanClient() {
   const url = `http://localhost:${AMMAN_RELAY_PORT}`;
   AmmanClient.setInstance(url);
   return AmmanClient.instance;
-}
-
-async function transactionHistory() {
-  const query = getQuery();
-  const loadHistory = parseLoadHistory(query);
-  const connection = new Connection(LOCALHOST);
-  const currentTransactionSignatures = loadHistory
-    ? await getLatestTransactionSignatures()
-    : [];
-
-  const currentTransactionSignaturesWithErrorStatus = await Promise.all(
-    currentTransactionSignatures.map(async (x) => {
-      const err = await getTransactionError(connection, x.signature);
-      return { ...x, err };
-    })
-  );
-  return currentTransactionSignaturesWithErrorStatus;
 }

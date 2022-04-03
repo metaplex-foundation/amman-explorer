@@ -1,3 +1,4 @@
+import {LOCALHOST} from "@metaplex-foundation/amman";
 import {
   Connection,
   Context,
@@ -5,7 +6,32 @@ import {
   TransactionError,
   TransactionSignature,
 } from "@solana/web3.js";
+import {getQuery} from "../utils/url";
 import { AmmanClient, CLEAR_TRANSACTIONS } from "./amman-client";
+import {getLatestTransactionSignatures} from "./queries";
+
+export function parseLoadHistory(query: URLSearchParams): boolean {
+  const loadTransactionHistory = query.get("loadTransactionHistory");
+  if (loadTransactionHistory == null) return false;
+  return loadTransactionHistory === "true";
+}
+
+export async function transactionHistory() {
+  const query = getQuery();
+  const loadHistory = parseLoadHistory(query);
+  const connection = new Connection(LOCALHOST);
+  const currentTransactionSignatures = loadHistory
+    ? await getLatestTransactionSignatures()
+    : [];
+
+  const currentTransactionSignaturesWithErrorStatus = await Promise.all(
+    currentTransactionSignatures.map(async (x) => {
+      const err = await getTransactionError(connection, x.signature);
+      return { ...x, err };
+    })
+  );
+  return currentTransactionSignaturesWithErrorStatus;
+}
 
 export type TransactionInfo = {
   signature: TransactionSignature;
