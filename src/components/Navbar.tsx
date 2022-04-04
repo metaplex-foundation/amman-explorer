@@ -31,6 +31,11 @@ export function Navbar() {
         >
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
+              <NavLink className="nav-link" to={clusterPath("/guide")} exact>
+                Guide
+              </NavLink>
+            </li>
+            <li className="nav-item">
               <NavLink className="nav-link" to={clusterPath("/")} exact>
                 Cluster Stats
               </NavLink>
