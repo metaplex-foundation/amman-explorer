@@ -11,7 +11,7 @@ export function AmmanGuidePage() {
   return (
     <div className="container mt-4">
       <AmmanConnectionGreeting ammanConnected={ammanConnected} />
-      <h2 className="mt-4">Guide</h2>
+      <h2 className="mt-4">Amman Explorer Guide</h2>
       <Installation ammanConnected={ammanConnected} />
       <Usage />
       <APIUsage />
@@ -41,7 +41,7 @@ function AmmanConnectionGreeting(props: { ammanConnected: boolean }) {
 function Installation({ ammanConnected }: { ammanConnected: boolean }) {
   const installSolanaUrl =
     "https://docs.solana.com/cli/install-solana-cli-tools";
-  const ammanInstall = "npm install -g @metaplex-founation/amman";
+  const ammanInstall = "npm install -g @metaplex-foundation/amman";
   const ammanStart = "amman start ";
   const refresh = ammanConnected ? null : (
     <tr>
@@ -220,7 +220,7 @@ function APIUsage() {
         </tr>
         {codeStep(
           "2. Install Amman as part of your Project",
-          "yarn add -D @metaplex-founation/amman"
+          "yarn add -D @metaplex-foundation/amman"
         )}
         {codeStep(
           "3. Import Amman",
