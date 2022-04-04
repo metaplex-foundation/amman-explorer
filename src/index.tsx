@@ -23,55 +23,45 @@ import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
 
 async function main() {
   const ammanClient = initAmmanClient();
-  if (!(await verifyLocalCluster())) {
-    ReactDOM.render(
-      <div>
-        <h2>Failed to connect to local test validator Amman at {LOCALHOST}</h2>
-        <div>
-          Please start one, ideally via{" "}
-          <a href="https://github.com/metaplex-foundation/amman">amman</a>.
-        </div>
-      </div>,
-      document.getElementById("root")
-    );
-  } else {
-    ReactDOM.render(
-      <Router>
-        <ClusterProvider>
-          <StatsProvider>
-            <SupplyProvider>
-              <RichListProvider>
-                <AccountsProvider>
-                  <BlockProvider>
-                    <EpochProvider>
-                      <MintsProvider>
-                        <TransactionsProvider>
-                          <TransactionsMonitorProvider
+  const connected = await verifyLocalCluster();
+  renderApp(ammanClient, connected);
+}
+
+function renderApp(ammanClient: AmmanClient, connected: boolean) {
+  ReactDOM.render(
+    <Router>
+      <ClusterProvider>
+        <StatsProvider>
+          <SupplyProvider>
+            <RichListProvider>
+              <AccountsProvider>
+                <BlockProvider>
+                  <EpochProvider>
+                    <MintsProvider>
+                      <TransactionsProvider>
+                        <TransactionsMonitorProvider ammanClient={ammanClient}>
+                          <CustomAddressLabelsProvider
                             ammanClient={ammanClient}
                           >
-                            <CustomAddressLabelsProvider
+                            <AccountInfoResolverProvider
                               ammanClient={ammanClient}
                             >
-                              <AccountInfoResolverProvider
-                                ammanClient={ammanClient}
-                              >
-                                <App />
-                              </AccountInfoResolverProvider>
-                            </CustomAddressLabelsProvider>
-                          </TransactionsMonitorProvider>
-                        </TransactionsProvider>
-                      </MintsProvider>
-                    </EpochProvider>
-                  </BlockProvider>
-                </AccountsProvider>
-              </RichListProvider>
-            </SupplyProvider>
-          </StatsProvider>
-        </ClusterProvider>
-      </Router>,
-      document.getElementById("root")
-    );
-  }
+                              <App ammanConnected={connected} />
+                            </AccountInfoResolverProvider>
+                          </CustomAddressLabelsProvider>
+                        </TransactionsMonitorProvider>
+                      </TransactionsProvider>
+                    </MintsProvider>
+                  </EpochProvider>
+                </BlockProvider>
+              </AccountsProvider>
+            </RichListProvider>
+          </SupplyProvider>
+        </StatsProvider>
+      </ClusterProvider>
+    </Router>,
+    document.getElementById("root")
+  );
 }
 
 main().catch((err: any) => {

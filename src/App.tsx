@@ -13,11 +13,12 @@ import { SupplyPage } from "pages/SupplyPage";
 import { TransactionDetailsPage } from "pages/TransactionDetailsPage";
 import { BlockDetailsPage } from "pages/BlockDetailsPage";
 import { EpochDetailsPage } from "pages/EpochDetailsPage";
+import { AmmanGuidePage } from "./amman/pages/";
 
 const ADDRESS_ALIASES = ["account", "accounts", "addresses"];
 const TX_ALIASES = ["txs", "txn", "txns", "transaction", "transactions"];
 
-function App() {
+function App(props: { ammanConnected: boolean }) {
   return (
     <>
       <ClusterModal />
@@ -27,6 +28,20 @@ function App() {
         <ClusterStatusBanner />
         <SearchBar />
         <Switch>
+          <Route
+            exact
+            path="/"
+            render={({location}) => {
+              return props.ammanConnected ? (
+              <Redirect to={{ ...location, pathname: "/" }} />
+              ) : (
+              <Redirect to={{ ...location, pathname: "guide" }} />
+              );
+            }}
+          />
+          <Route exact path={["/guide"]}>
+            <AmmanGuidePage ammanConnected={props.ammanConnected} />
+          </Route>
           <Route exact path={["/supply", "/accounts", "accounts/top"]}>
             <SupplyPage />
           </Route>
@@ -94,11 +109,6 @@ function App() {
           <Route exact path="/">
             <ClusterStatsPage />
           </Route>
-          <Route
-            render={({ location }) => (
-              <Redirect to={{ ...location, pathname: "/" }} />
-            )}
-          />
         </Switch>
       </div>
     </>
