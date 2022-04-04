@@ -40,7 +40,7 @@ function App(props: { ammanConnected: boolean }) {
             }}
           />
           <Route exact path={["/guide"]}>
-            <AmmanGuidePage ammanConnected={props.ammanConnected} />
+            <AmmanGuidePage />
           </Route>
           <Route exact path={["/supply", "/accounts", "accounts/top"]}>
             <SupplyPage />

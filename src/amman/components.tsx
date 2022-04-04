@@ -7,7 +7,8 @@ export function TransactionsMonitorView() {
   const [customAddressLabels] = useCustomAddressLabels();
 
   function loadHistory() {
-    // TODO(thlorenz): Eventually hould add some kind of indicator that this is loading since this can take quite a while
+    // TODO(thlorenz): Eventually hould add some kind of indicator that this is
+    // loading since this can take quite a while
     TransactionsMonitor.existingInstance.loadTransactionHistory();
   }
   const loadedTxHistory =
