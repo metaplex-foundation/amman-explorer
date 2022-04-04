@@ -31,11 +31,11 @@ function App(props: { ammanConnected: boolean }) {
           <Route
             exact
             path="/"
-            render={({location}) => {
+            render={({ location }) => {
               return props.ammanConnected ? (
-              <Redirect to={{ ...location, pathname: "/" }} />
+                <Redirect to={{ ...location, pathname: "/" }} />
               ) : (
-              <Redirect to={{ ...location, pathname: "guide" }} />
+                <Redirect to={{ ...location, pathname: "guide" }} />
               );
             }}
           />
