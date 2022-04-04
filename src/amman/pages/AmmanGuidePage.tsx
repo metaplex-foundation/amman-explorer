@@ -14,6 +14,7 @@ export function AmmanGuidePage() {
       <h2 className="mt-4">Guide</h2>
       <Installation ammanConnected={ammanConnected} />
       <Usage />
+      <APIUsage />
       <CliExample />
     </div>
   );
@@ -38,6 +39,8 @@ function AmmanConnectionGreeting(props: { ammanConnected: boolean }) {
 }
 
 function Installation({ ammanConnected }: { ammanConnected: boolean }) {
+  const installSolanaUrl =
+    "https://docs.solana.com/cli/install-solana-cli-tools";
   const ammanInstall = "npm install -g @metaplex-founation/amman";
   const ammanStart = "amman start ";
   const refresh = ammanConnected ? null : (
@@ -60,11 +63,8 @@ function Installation({ ammanConnected }: { ammanConnected: boolean }) {
         <tr>
           <td>1. Install Solana</td>
           <td className="text-lg-end">
-            <Link
-              to={{pathname:"https://docs.solana.com/cli/install-solana-cli-tools"}}
-              target="_blank"
-            >
-              https://docs.solana.com/cli/install-solana-cli-tools
+            <Link to={{ pathname: installSolanaUrl }} target="_blank">
+              {installSolanaUrl}
             </Link>
           </td>
         </tr>
@@ -72,7 +72,7 @@ function Installation({ ammanConnected }: { ammanConnected: boolean }) {
           <td>2. Install Amman</td>
           <td className="text-lg-end">
             <Copyable text={ammanInstall}>
-              <code>{ammanInstall}</code>
+              <code className="m-3 p-3">{ammanInstall}</code>
             </Copyable>
           </td>
         </tr>
@@ -80,7 +80,7 @@ function Installation({ ammanConnected }: { ammanConnected: boolean }) {
           <td>3. Launch Amman in Separate Terminal</td>
           <td className="text-lg-end">
             <Copyable text={ammanStart}>
-              <code>{ammanStart}</code>
+              <code className="m-3 p-3">{ammanStart}</code>
             </Copyable>
           </td>
         </tr>
@@ -110,7 +110,7 @@ function Usage() {
           <td>2. Create Wallet</td>
           <td className="text-lg-end">
             <Copyable text={createWallet}>
-              <code>{createWallet}</code>
+              <code className="m-3 p-3">{createWallet}</code>
             </Copyable>
           </td>
         </tr>
@@ -120,7 +120,7 @@ function Usage() {
           </td>
           <td className="text-lg-end">
             <Copyable text={airdrop}>
-              <code>{airdrop}</code>
+              <code className="m-3 p-3">{airdrop}</code>
             </Copyable>
           </td>
         </tr>
@@ -134,7 +134,7 @@ function Usage() {
           <td>5. Discover more Amman Commands</td>
           <td className="text-lg-end">
             <Copyable text={ammanHelp}>
-              <code>{ammanHelp}</code>
+              <code className="m-3 p-3">{ammanHelp}</code>
             </Copyable>
           </td>
         </tr>
@@ -144,10 +144,130 @@ function Usage() {
           </td>
           <td className="text-lg-end">
             <Copyable text={ammanStop}>
-              <code>{ammanStop}</code>
+              <code className="m-3 p-3">{ammanStop}</code>
             </Copyable>
           </td>
         </tr>
+      </TableCardBody>
+
+      <div className="card-header align-items-center">
+        <h4 className="card-header-title text-secondary">Amman Command Line Screencast</h4>
+      </div>
+        <iframe
+          className="row m-3"
+          width="560"
+          height="315"
+          src="https://www.youtube.com/embed/i5Yx2-Xm-h8"
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
+    </div>
+  );
+}
+
+function APIUsage() {
+  const ammanConfigUrl =
+    "https://github.com/metaplex-foundation/amman#sample-validatorrelaystorage-config";
+  const ammanAddrUrl =
+    "https://metaplex-foundation.github.io/amman/docs/classes/AddressLabels.html";
+
+  const codeStep = (title: string, code: string | null, className = "") => {
+    const codeCell =
+      code == null ? null : (
+        <td className="text-lg-end">
+          <Copyable text={CLI_EXAMPLE}>
+            <code className="m-3 p-3">{code}</code>
+          </Copyable>
+        </td>
+      );
+
+    return (
+      <tr>
+        <td className={className}>{title}</td>
+        {codeCell}
+      </tr>
+    );
+  };
+
+  const linkStep = (title: string, link: string, className = "") => (
+    <tr>
+      <td className={className}>{title}</td>
+      <td className="text-lg-end">
+        <Link to={{ pathname: link }} target="_blank">
+          {link}
+        </Link>
+      </td>
+    </tr>
+  );
+  return (
+    <div className="card">
+      <div className="card-header align-items-center">
+        <h3 className="card-header-title text-primary">
+          API TypeScript/JavaScript
+        </h3>
+      </div>
+      <TableCardBody>
+        <tr>
+          <td>
+            1. <em>Optionally</em> add an <code>.ammanrc.js</code> config to
+            your project
+          </td>
+          <td className="text-lg-end">
+            <Link to={{ pathname: ammanConfigUrl }} target="_blank">
+              {ammanConfigUrl}
+            </Link>
+          </td>
+        </tr>
+        {codeStep(
+          "2. Install Amman as part of your Project",
+          "yarn add -D @metaplex-founation/amman"
+        )}
+        {codeStep(
+          "3. Import Amman",
+          "import { Amman, LOCALHOST } from '@metaplex-foundation/amman"
+        )}
+        {codeStep("4 Import and Initialize Amman", null, "text-primary")}
+        {linkStep(
+          "4.a Read up on Amman.init",
+          "https://metaplex-foundation.github.io/amman/docs/classes/Amman.html#instance"
+        )}
+        {codeStep(
+          "4.b Initalize an Amman Instance (pass options when desired)",
+          "export const amman = Amman.instance()"
+        )}
+        {codeStep("5. Airdrop to a new Account", null, "text-primary")}
+        {codeStep(
+          "5.a Generate a labeled Keypair with Amman",
+          "const [payer, payerPair] = amman.genKeypair('payer')"
+        )}
+        {linkStep(
+          "5.b Read up on amman.airdrop",
+          "https://metaplex-foundation.github.io/amman/docs/classes/Amman.html#airdrop"
+        )}
+        {codeStep(
+          "5.c Create a web3.js Connection",
+          "const connection = new Connection(LOCALHOST)",
+          "m-3"
+        )}
+        {codeStep(
+          "5.d Airdrop to the Keypair",
+          "await amman.airdrop(connection, payer, 2)"
+        )}
+        {codeStep("6. Learn more about the Amman API", null, "text-primary")}
+        <tr>
+          <td>
+            6.a Label acounts via <code>amman.adrr</code>
+          </td>
+          <td className="text-lg-end">
+            <Link to={{ pathname: ammanAddrUrl }} target="_blank">
+              {ammanAddrUrl}
+            </Link>
+          </td>
+        </tr>
+        {linkStep(
+          "6.b Send transactions via the payer transaction handler",
+          "https://metaplex-foundation.github.io/amman/docs/classes/Amman.html#payerTransactionHandler"
+        )}
       </TableCardBody>
     </div>
   );
@@ -157,15 +277,17 @@ function CliExample() {
   return (
     <div className="card">
       <div className="card-header align-items-center">
-        <h3 className="card-header-title text-primary">Full Command Line Example</h3>
+        <h3 className="card-header-title text-primary">
+          Full Command Line Example
+        </h3>
       </div>
       <TableCardBody>
         <p className="m-3">
           Follow
-          <Link to={{pathname: walkThruUrl}}>
-            this walk through
+          <Link className="me-0 pe-0 d-inline" to={{ pathname: walkThruUrl }}>
+            this walk through,
           </Link>
-          <span>or run the script below</span>
+          <span>watch the screencast above or run the script below</span>
         </p>
         <Copyable text={CLI_EXAMPLE}>
           <pre className="m-3 p-3">{CLI_EXAMPLE}</pre>
@@ -179,7 +301,7 @@ function CliExample() {
 // -----------------
 
 const walkThruUrl =
-  'https://gist.github.com/thlorenz/0a4fd8afe81dc1ba81e63619ed5a77bf#file-walk-thru-md';
+  "https://gist.github.com/thlorenz/0a4fd8afe81dc1ba81e63619ed5a77bf#file-walk-thru-md";
 
 const CLI_EXAMPLE = `
 #!/usr/bin/env bash
