@@ -54,14 +54,14 @@ function Installation({ ammanConnected }: { ammanConnected: boolean }) {
   return (
     <div className="card">
       <div className="card-header align-items-center">
-        <h3 className="card-header-title">Installation</h3>
+        <h3 className="card-header-title text-primary">Installation</h3>
       </div>
       <TableCardBody>
         <tr>
           <td>1. Install Solana</td>
           <td className="text-lg-end">
             <Link
-              to="https://docs.solana.com/cli/install-solana-cli-tools"
+              to={{pathname:"https://docs.solana.com/cli/install-solana-cli-tools"}}
               target="_blank"
             >
               https://docs.solana.com/cli/install-solana-cli-tools
@@ -99,7 +99,7 @@ function Usage() {
   return (
     <div className="card">
       <div className="card-header align-items-center">
-        <h3 className="card-header-title">Command Line Usage</h3>
+        <h3 className="card-header-title text-primary">Command Line Usage</h3>
       </div>
       <TableCardBody>
         <tr>
@@ -157,18 +157,20 @@ function CliExample() {
   return (
     <div className="card">
       <div className="card-header align-items-center">
-        <h3 className="card-header-title">Full Command Line Example</h3>
+        <h3 className="card-header-title text-primary">Full Command Line Example</h3>
       </div>
       <TableCardBody>
-      <p className="m-3">Follow <Link to={walkThruUrl}>this walk through</Link>
-        <span>or run the script below</span>
-      </p>
-            <Copyable text={CLI_EXAMPLE}>
-      <pre className="m-3 p-3" >
-        {CLI_EXAMPLE}
-      </pre>
-      </Copyable>
-    </TableCardBody>
+        <p className="m-3">
+          Follow
+          <Link to={{pathname: walkThruUrl}}>
+            this walk through
+          </Link>
+          <span>or run the script below</span>
+        </p>
+        <Copyable text={CLI_EXAMPLE}>
+          <pre className="m-3 p-3">{CLI_EXAMPLE}</pre>
+        </Copyable>
+      </TableCardBody>
     </div>
   );
 }
@@ -177,7 +179,7 @@ function CliExample() {
 // -----------------
 
 const walkThruUrl =
-  '"https://gist.github.com/thlorenz/0a4fd8afe81dc1ba81e63619ed5a77bf#file-walk-thru-md';
+  'https://gist.github.com/thlorenz/0a4fd8afe81dc1ba81e63619ed5a77bf#file-walk-thru-md';
 
 const CLI_EXAMPLE = `
 #!/usr/bin/env bash
