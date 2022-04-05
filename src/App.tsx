@@ -33,14 +33,17 @@ function App(props: { ammanConnected: boolean }) {
             path="/"
             render={({ location }) => {
               return props.ammanConnected ? (
-                <Redirect to={{ ...location, pathname: "/" }} />
+                <Redirect to={{ ...location, pathname: "clusterStats" }} />
               ) : (
                 <Redirect to={{ ...location, pathname: "guide" }} />
               );
             }}
-          />
+          ></Route>
           <Route exact path={["/guide"]}>
             <AmmanGuidePage />
+          </Route>
+          <Route exact path={["/clusterStats"]}>
+            <ClusterStatsPage />
           </Route>
           <Route exact path={["/supply", "/accounts", "accounts/top"]}>
             <SupplyPage />
@@ -106,9 +109,6 @@ function App(props: { ammanConnected: boolean }) {
               />
             )}
           />
-          <Route exact path="/">
-            <ClusterStatsPage />
-          </Route>
         </Switch>
       </div>
     </>

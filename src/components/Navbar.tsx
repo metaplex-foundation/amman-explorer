@@ -36,7 +36,7 @@ export function Navbar() {
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to={clusterPath("/")} exact>
+              <NavLink className="nav-link" to={clusterPath("/clusterStats")} exact>
                 Cluster Stats
               </NavLink>
             </li>

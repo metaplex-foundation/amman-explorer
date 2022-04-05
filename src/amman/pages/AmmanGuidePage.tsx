@@ -151,16 +151,18 @@ function Usage() {
       </TableCardBody>
 
       <div className="card-header align-items-center">
-        <h4 className="card-header-title text-secondary">Amman Command Line Screencast</h4>
+        <h4 className="card-header-title text-secondary">
+          Amman Command Line Screencast
+        </h4>
       </div>
-        <iframe
-          className="row m-3"
-          width="560"
-          height="315"
-          src="https://www.youtube.com/embed/i5Yx2-Xm-h8"
-          title="YouTube video player"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        ></iframe>
+      <iframe
+        className="row m-3"
+        width="560"
+        height="315"
+        src="https://www.youtube.com/embed/i5Yx2-Xm-h8"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      ></iframe>
     </div>
   );
 }
