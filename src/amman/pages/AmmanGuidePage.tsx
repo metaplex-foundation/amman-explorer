@@ -226,7 +226,7 @@ function APIUsage() {
           "3. Import Amman",
           "import { Amman, LOCALHOST } from '@metaplex-foundation/amman"
         )}
-        {codeStep("4 Import and Initialize Amman", null, "text-primary")}
+        {codeStep("4 Initialize Amman", null, "text-primary")}
         {linkStep(
           "4.a Read up on Amman.init",
           "https://metaplex-foundation.github.io/amman/docs/classes/Amman.html#instance"
@@ -256,7 +256,7 @@ function APIUsage() {
         {codeStep("6. Learn more about the Amman API", null, "text-primary")}
         <tr>
           <td>
-            6.a Label acounts via <code>amman.adrr</code>
+            6.a Label acounts via <code>amman.addr</code>
           </td>
           <td className="text-lg-end">
             <Link to={{ pathname: ammanAddrUrl }} target="_blank">
