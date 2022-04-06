@@ -44,7 +44,15 @@ export function RenderedResolvedAccountInfo(
   { label, nestedLevel }: { label?: string; nestedLevel: number }
 ) {
   const rows = Object.entries(resolvedAccountInfo.pretty).map(([key, val]) => {
-    if (!Array.isArray(val) && val != null && typeof val === "object") {
+    if (Array.isArray(val)) {
+      
+      val = val.length <= 10 ? val.map((x) =>
+        RenderedResolvedAccountInfo(
+          { pretty: x },
+          { nestedLevel: (nestedLevel ?? 0) + 1, label }
+        )
+      ): JSON.stringify(val, null, 2);
+    } else if (val != null && typeof val === "object") {
       val = RenderedResolvedAccountInfo(
         { pretty: val },
         { nestedLevel: (nestedLevel ?? 0) + 1, label }
