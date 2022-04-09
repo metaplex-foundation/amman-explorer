@@ -45,13 +45,15 @@ export function RenderedResolvedAccountInfo(
 ) {
   const rows = Object.entries(resolvedAccountInfo.pretty).map(([key, val]) => {
     if (Array.isArray(val)) {
-      
-      val = val.length <= 10 ? val.map((x) =>
-        RenderedResolvedAccountInfo(
-          { pretty: x },
-          { nestedLevel: (nestedLevel ?? 0) + 1, label }
-        )
-      ): JSON.stringify(val, null, 2);
+      val =
+        val.length <= 10
+          ? val.map((x) =>
+              RenderedResolvedAccountInfo(
+                { pretty: x },
+                { nestedLevel: (nestedLevel ?? 0) + 1, label }
+              )
+            )
+          : JSON.stringify(val, null, 2);
     } else if (val != null && typeof val === "object") {
       val = RenderedResolvedAccountInfo(
         { pretty: val },
