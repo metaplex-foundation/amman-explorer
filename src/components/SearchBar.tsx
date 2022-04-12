@@ -15,6 +15,8 @@ import { Cluster, useCluster } from "providers/cluster";
 import { useTokenRegistry } from "providers/mints/token-registry";
 import { TokenInfoMap } from "@solana/spl-token-registry";
 import { TransactionsMonitorView } from "../amman/components";
+import { useCustomAddressLabels } from "../amman";
+import { identifySolanaAddress } from "@metaplex-foundation/amman";
 
 export function SearchBar() {
   const [search, setSearch] = React.useState("");
@@ -23,6 +25,7 @@ export function SearchBar() {
   const location = useLocation();
   const { tokenRegistry } = useTokenRegistry();
   const { cluster, clusterInfo } = useCluster();
+  const [addressLabels] = useCustomAddressLabels();
 
   const onChange = (
     { pathname }: ValueType<any, false>,
@@ -50,6 +53,7 @@ export function SearchBar() {
                 search,
                 cluster,
                 tokenRegistry,
+                addressLabels,
                 clusterInfo?.epochInfo.epoch
               )}
               noOptionsMessage={() => "No Results"}
@@ -201,16 +205,54 @@ function buildTokenOptions(
   }
 }
 
+function buildLabeledAddressOptions(
+  search: string,
+  addressLabels: Map<string, string>
+) {
+  const matchedAddresses: {
+    label: string;
+    value: [string, string];
+    pathname: string;
+  }[] = [];
+  for (const [address, label] of addressLabels.entries()) {
+    if (label.toLowerCase().includes(search.toLowerCase())) {
+      const addr = identifySolanaAddress(address);
+      if (addr != null) {
+        const pathPrefix = addr.type === "signature" ? "/tx/" : "/address/";
+        matchedAddresses.push({
+          label,
+          value: [label, address],
+          pathname: pathPrefix + address,
+        });
+      }
+    }
+  }
+
+  matchedAddresses.reverse();
+  if (matchedAddresses.length > 0) {
+    return {
+      label: "Labeled",
+      options: matchedAddresses,
+    };
+  }
+}
+
 function buildOptions(
   rawSearch: string,
   cluster: Cluster,
   tokenRegistry: TokenInfoMap,
+  addressLabels: Map<string, string>,
   currentEpoch?: number
 ) {
   const search = rawSearch.trim();
   if (search.length === 0) return [];
 
   const options = [];
+
+  const addressOptions = buildLabeledAddressOptions(search, addressLabels);
+  if (addressOptions) {
+    options.push(addressOptions);
+  }
 
   const programOptions = buildProgramOptions(search, cluster);
   if (programOptions) {
