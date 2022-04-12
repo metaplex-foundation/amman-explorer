@@ -2858,13 +2858,13 @@
     color "^0.11.3"
     mersenne-twister "^1.1.0"
 
-"@metaplex-foundation/amman@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman/-/amman-0.4.0.tgz#d534ee622f8f9fb45a884b37ac9e5baaf24c6a86"
-  integrity sha512-bsyc2bal+4am28353ume6v/XBv6xfAM/VMYrpS70hq2zT5+RIdSCFZyebhzmlwTIv5RJUfEsdTVSBonlAk+Wqw==
+"@metaplex-foundation/amman@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/amman/-/amman-0.4.1.tgz#8bcdf723f119a0e9f73840ff2c76455d91266f1c"
+  integrity sha512-4E2d2CVlnctsAKojzo0QJ08Jxxm6NfB2rVvbEewD74vu6Lh+5ptBC3wrmO9EaHiX5GuXimP1b43dEDx+lw+f2w==
   dependencies:
     "@metaplex-foundation/cusper" "^0.0.2"
-    "@metaplex-foundation/js-next" "^0.5.0"
+    "@metaplex-foundation/js-next" "^0.4.4"
     "@solana/spl-token" "^0.2.0"
     "@solana/spl-token-registry" "^0.2.2405"
     "@solana/web3.js" "^1.35.0"
@@ -2903,10 +2903,10 @@
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/cusper/-/cusper-0.0.2.tgz#dc2032a452d6c269e25f016aa4dd63600e2af975"
   integrity sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==
 
-"@metaplex-foundation/js-next@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/js-next/-/js-next-0.5.0.tgz#ea15f72ca0d5e33207b132e368c1e466dc21f745"
-  integrity sha512-i87ddziIZJgVRZDgRAOPnf6xnDlFEINDRoF4h0G/zsLuQ+hsybRNbd9lot2FMs67M8G74X2t92AHFzDZIYLU8g==
+"@metaplex-foundation/js-next@^0.4.4":
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/js-next/-/js-next-0.4.4.tgz#27cc2b3c88becff32aacb6d4a38c1cfadd490783"
+  integrity sha512-PCfKSUtETUKuMAxkWnz8Kx6PaU9kz4H1+mByIefFrXJoAmXJ+rf8Slg3aAhwxzbxKRd2TM8QJxbwmIwk//ZQ0w==
   dependencies:
     "@aws-sdk/client-s3" "^3.54.1"
     "@bundlr-network/client" "^0.6.1-rc4"
