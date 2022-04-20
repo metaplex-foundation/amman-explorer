@@ -2,6 +2,12 @@ import { ErrorCard } from "../components/common/ErrorCard";
 import { TableCardBody } from "../components/common/TableCardBody";
 import { ResolvedAccountStates } from "./AccountStatesResolver";
 import { useCustomAddressLabels } from "./providers";
+import { displayTimestamp } from '../utils/date'
+
+import format from 'date-fns/format'
+import formatDistance from 'date-fns/formatDistance'
+import {Slot} from "../components/common/Slot";
+import assert from "assert";
 
 export function ResolvedAccountInfosCard({
   resolvedAccountStates,
@@ -42,6 +48,7 @@ export function RenderedResolvedAccountState(
     account: Record<string, any>;
     rendered?: string;
     timestamp?: number;
+    slot?: number;
   },
   { label, nestedLevel }: { label?: string; nestedLevel: number }
 ) {
@@ -90,13 +97,21 @@ export function RenderedResolvedAccountState(
   } else {
     content = <TableCardBody>{rows}</TableCardBody>;
   }
-  return nestedLevel > 0 ? (
+  if (nestedLevel > 0 ) return (
     <div key={`${label}-${nestedLevel}`} className="p-3 table-bordered">
       {content}
     </div>
-  ) : (
+  ) 
+  const { slot, timestamp } = resolvedAccountState;
+  assert(slot != null && timestamp != null, 'slot and timestamp must be defined for each state')
+  return (
     <div key={label} className="card p-3 bg-gradient-dark">
       <h3 className="card-header-title mb-4 text-uppercase">{label}</h3>
+      <span> Slot: <Slot slot={slot} link />
+      <span className="text-muted px-3">
+       {formatDistance(timestamp, Date.now(), { addSuffix: true })}, {displayTimestamp(timestamp)}
+      </span>
+    </span>
       {content}
     </div>
   );
