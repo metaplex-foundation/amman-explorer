@@ -12,7 +12,7 @@ import { EpochProvider } from "./providers/epoch";
 import { StatsProvider } from "providers/stats";
 import { MintsProvider } from "providers/mints";
 import {
-  AccountInfoResolverProvider,
+  AccountStatesResolverProvider,
   AmmanClient,
   CustomAddressLabelsProvider,
   TransactionsMonitorProvider,
@@ -43,11 +43,11 @@ function renderApp(ammanClient: AmmanClient, connected: boolean) {
                           <CustomAddressLabelsProvider
                             ammanClient={ammanClient}
                           >
-                            <AccountInfoResolverProvider
+                            <AccountStatesResolverProvider
                               ammanClient={ammanClient}
                             >
                               <App ammanConnected={connected} />
-                            </AccountInfoResolverProvider>
+                            </AccountStatesResolverProvider>
                           </CustomAddressLabelsProvider>
                         </TransactionsMonitorProvider>
                       </TransactionsProvider>

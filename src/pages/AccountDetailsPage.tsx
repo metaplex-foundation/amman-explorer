@@ -40,8 +40,9 @@ import { MetaplexMetadataCard } from "components/account/MetaplexMetadataCard";
 import { NFTHeader } from "components/account/MetaplexNFTHeader";
 import { DomainsCard } from "components/account/DomainsCard";
 import isMetaplexNFT from "providers/accounts/utils/isMetaplexNFT";
-import { useResolvedAccountInfos, ResolvedAccountInfo } from "../amman";
+import { useResolvedAccountStates } from "../amman";
 import { ResolvedAccountInfosCard } from "../amman/ResolvedAccountInfosCard";
+import { ResolvedAccountStates } from "../amman/AccountStatesResolver";
 
 const IDENTICON_WIDTH = 64;
 
@@ -230,8 +231,8 @@ function DetailsSections({
   const location = useLocation();
   const { flaggedAccounts } = useFlaggedAccounts();
 
-  const [accountInfos] = useResolvedAccountInfos();
-  const resolvedAccountInfos = accountInfos.get(address);
+  const [accountStates] = useResolvedAccountStates();
+  const resolvedAccountStates = accountStates.get(address);
 
   if (!info || info.status === FetchStatus.Fetching) {
     return <LoadingCard />;
@@ -269,7 +270,7 @@ function DetailsSections({
           account={account}
           tab={moreTab}
           tabs={tabs}
-          resolvedAccountInfos={resolvedAccountInfos}
+          resolvedAccountStates={resolvedAccountStates}
         />
       }
     </>
@@ -340,12 +341,12 @@ function MoreSection({
   account,
   tab,
   tabs,
-  resolvedAccountInfos,
+  resolvedAccountStates,
 }: {
   account: Account;
   tab: MoreTabs;
   tabs: Tab[];
-  resolvedAccountInfos?: ResolvedAccountInfo[];
+  resolvedAccountStates?: ResolvedAccountStates;
 }) {
   const pubkey = account.pubkey;
   const address = account.pubkey.toBase58();
@@ -408,7 +409,7 @@ function MoreSection({
       {tab === "domains" && <DomainsCard pubkey={pubkey} />}
       {tab === "resolved-info" && (
         <ResolvedAccountInfosCard
-          resolvedAccountInfos={resolvedAccountInfos}
+          resolvedAccountStates={resolvedAccountStates}
           accountAddress={address}
         />
       )}

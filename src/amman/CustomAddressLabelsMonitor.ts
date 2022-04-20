@@ -1,4 +1,4 @@
-import { AccountInfoResolver } from "./AccountInfoResolver";
+import { AccountStatesResolver } from "./AccountStatesResolver";
 import {
   AmmanClient,
   CLEAR_ADDRESS_LABELS,
@@ -29,7 +29,7 @@ export class CustomAddressLabelsMonitor {
     this.handleAddressLablesChanged(this._labels);
     for (const address of Object.keys(labels)) {
       if (address.length <= 44) {
-        AccountInfoResolver.instance.requestAccountInfo(address);
+        AccountStatesResolver.instance.requestAccountStates(address);
       }
     }
   };
