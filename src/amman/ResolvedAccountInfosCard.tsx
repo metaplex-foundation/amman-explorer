@@ -4,7 +4,6 @@ import { ResolvedAccountStates } from "./AccountStatesResolver";
 import { useCustomAddressLabels } from "./providers";
 import { displayTimestamp } from '../utils/date'
 
-import format from 'date-fns/format'
 import formatDistance from 'date-fns/formatDistance'
 import {Slot} from "../components/common/Slot";
 import assert from "assert";
@@ -30,14 +29,14 @@ export function ResolvedAccountInfosCard({
       />
     );
   } else {
-    const len = resolvedAccountStates.states.length;
-    content = resolvedAccountStates.states.reverse().map((x, idx) => {
-      const slot = len - idx;
-      return RenderedResolvedAccountState(x, {
-        label: `${label} ${slot}`,
-        nestedLevel: 0,
-      });
-    });
+    content = []
+    for (let idx = resolvedAccountStates.states.length - 1; idx >= 0; idx--) {
+        const state = resolvedAccountStates.states[idx];
+        content.push(RenderedResolvedAccountState(state, {
+          label: `${label} ${idx +1 }`,
+          nestedLevel: 0,
+        }));
+    }
   }
 
   return <>{content}</>;
