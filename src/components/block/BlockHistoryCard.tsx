@@ -13,6 +13,7 @@ import { Address } from "components/common/Address";
 import { useQuery } from "utils/url";
 import { useCluster } from "providers/cluster";
 import { displayAddress } from "utils/tx";
+import {useCustomAddressLabels} from "../../amman";
 
 const PAGE_SIZE = 25;
 
@@ -33,6 +34,7 @@ export function BlockHistoryCard({ block }: { block: BlockResponse }) {
   const [numDisplayed, setNumDisplayed] = React.useState(PAGE_SIZE);
   const [showDropdown, setDropdown] = React.useState(false);
   const filter = useQueryFilter();
+  const [customAddressLabels] = useCustomAddressLabels();
 
   const { transactions, invokedPrograms } = React.useMemo(() => {
     const invokedPrograms = new Map<string, number>();
@@ -139,8 +141,15 @@ export function BlockHistoryCard({ block }: { block: BlockResponse }) {
               }
 
               if (tx.signature) {
+                const addressLabel = customAddressLabels.get(tx.signature);
                 signature = (
-                  <Signature signature={tx.signature} link truncateChars={48} />
+                    <Signature
+                      signature={tx.signature}
+                      addressLabel={addressLabel}
+                      link
+                      truncate
+                      truncateChars={48}
+                    />
                 );
               }
 
