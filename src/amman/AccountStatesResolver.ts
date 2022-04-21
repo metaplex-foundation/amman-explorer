@@ -1,10 +1,48 @@
 import { AmmanClient, RESOLVED_ACCOUNT_STATES } from "./amman-client";
 import { strict as assert } from "assert";
 import { CustomAddressLabelsMonitor } from "./CustomAddressLabelsMonitor";
-import { RelayAccountState } from "@metaplex-foundation/amman";
+import { AccountDiff, RelayAccountState } from "@metaplex-foundation/amman";
+import { UnreachableCaseError } from "./utils";
 
+export enum AccountDiffType {
+  Added,
+  Removed,
+  Changed,
+}
+
+function getAccountDiffType(diff: AccountDiff[number]): AccountDiffType {
+  switch (diff.kind) {
+    case "N":
+    case "A":
+      return AccountDiffType.Added;
+    case "D":
+      return AccountDiffType.Removed;
+    case "E":
+      return AccountDiffType.Changed;
+    default:
+      // @ts-ignore we did cover all cases here
+      throw new UnreachableCaseError(diff.kind);
+  }
+}
+
+function mapAccountDiffByPath(
+  accountDiff?: AccountDiff
+): Map<string, AccountDiffType> | undefined {
+  if (accountDiff == null) return undefined;
+  const map = new Map();
+  for (const diff of accountDiff) {
+    if (diff.path != null && diff.path.length > 0) {
+      map.set(diff.path[0], getAccountDiffType(diff));
+    }
+  }
+  return map;
+}
+
+export type ResolvedAccountState = Omit<RelayAccountState, "accountDiff"> & {
+  accountDiff?: Map<string, AccountDiffType>;
+};
 export type ResolvedAccountStates = {
-  states: RelayAccountState[];
+  states: ResolvedAccountState[];
   accountAddress: string;
 };
 export type HandleAccountStatesResolved = (
@@ -29,14 +67,20 @@ export class AccountStatesResolver {
     accountAddress: string,
     accountStates: RelayAccountState[]
   ) => {
-    const labeledStates = [];
+    const labeledStates: ResolvedAccountState[] = [];
     for (const state of accountStates) {
       const labeledState: RelayAccountState = { ...state, account: {} };
       for (const [key, val] of Object.entries(state.account)) {
-        const label = CustomAddressLabelsMonitor.instance.get(val);
+        const label =
+          typeof val === "string"
+            ? CustomAddressLabelsMonitor.instance.get(val)
+            : undefined;
         labeledState.account[key] = label != null ? `${label} (${val})` : val;
       }
-      labeledStates.push(labeledState);
+      labeledStates.push({
+        ...labeledState,
+        accountDiff: mapAccountDiffByPath(labeledState.accountDiff),
+      });
     }
     this.resolvedAccountStates.set(accountAddress, {
       states: labeledStates,
