@@ -64,7 +64,7 @@ export class AmmanClient extends EventEmitter {
     this.socket.emit(MSG_REQUEST_ACCOUNT_STATES, accountAddress);
   }
 
-  async fetchAmmanVersion() {
+  async fetchAmmanVersion(): Promise<AmmanVersionInfo> {
     const relayConnected = this.socket.connected;
     const ammanConnected = await verifyLocalCluster();
     if (!ammanConnected || !relayConnected) {

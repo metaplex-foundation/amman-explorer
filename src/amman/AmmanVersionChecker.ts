@@ -55,6 +55,7 @@ export type OnAmmanVersionInfo = (versionInfo: AmmanVersionInfo) => void;
 export class AmmanVersionChecker extends EventEmitter {
   private constructor(
     readonly ammanClient: AmmanClient,
+    readonly setAmmanVersionInfo: OnAmmanVersionInfo,
     updateInterval = 3000
   ) {
     super();
@@ -64,8 +65,8 @@ export class AmmanVersionChecker extends EventEmitter {
   private static _instance?: AmmanVersionChecker;
 
   async requestVersionInfo() {
-    const info = await this.ammanClient.fetchAmmanVersion();
-    this.emit("version-info", info);
+    const info: AmmanVersionInfo = await this.ammanClient.fetchAmmanVersion();
+    this.setAmmanVersionInfo(info);
   }
 
   static instance(
@@ -73,13 +74,9 @@ export class AmmanVersionChecker extends EventEmitter {
     setAmmanVersionInfo: OnAmmanVersionInfo
   ) {
     if (AmmanVersionChecker._instance == null) {
-      // Somewhat hacky way to ensure we only ever have one subscription even
-      // if the view _uses_ ammanVersion multiple times.
-      AmmanVersionChecker._instance = new AmmanVersionChecker(ammanClient).on(
-        "version-info",
-        (versionInfo: AmmanVersionInfo) => {
-          setAmmanVersionInfo(versionInfo);
-        }
+      AmmanVersionChecker._instance = new AmmanVersionChecker(
+        ammanClient,
+        setAmmanVersionInfo
       );
       AmmanVersionChecker._instance.requestVersionInfo();
     }
