@@ -101,8 +101,8 @@ export function RenderedResolvedAccountState(
             : val.toString();
       }
       const diff = resolvedAccountState.accountDiff?.get(keyPath);
-      const diffClass  = classForDiff(diff);
-      const valClassname = `text-lg-end font-monospace  ${diffClass}`
+      const diffClass = classForDiff(diff);
+      const valClassname = `text-lg-end font-monospace  ${diffClass}`;
 
       return (
         <tr key={`${key}-${nestedLevel}`}>

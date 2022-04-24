@@ -14,12 +14,12 @@ import { MintsProvider } from "providers/mints";
 import {
   AccountStatesResolverProvider,
   AmmanClient,
+  AmmanVersionProvider,
   CustomAddressLabelsProvider,
   TransactionsMonitorProvider,
 } from "./amman";
-import { LOCALHOST } from "./amman/consts";
-import { Connection } from "@solana/web3.js";
 import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
+import { verifyLocalCluster } from "./amman/utils";
 
 async function main() {
   const ammanClient = initAmmanClient();
@@ -39,17 +39,21 @@ function renderApp(ammanClient: AmmanClient, connected: boolean) {
                   <EpochProvider>
                     <MintsProvider>
                       <TransactionsProvider>
-                        <TransactionsMonitorProvider ammanClient={ammanClient}>
-                          <CustomAddressLabelsProvider
+                        <AmmanVersionProvider ammanClient={ammanClient}>
+                          <TransactionsMonitorProvider
                             ammanClient={ammanClient}
                           >
-                            <AccountStatesResolverProvider
+                            <CustomAddressLabelsProvider
                               ammanClient={ammanClient}
                             >
-                              <App ammanConnected={connected} />
-                            </AccountStatesResolverProvider>
-                          </CustomAddressLabelsProvider>
-                        </TransactionsMonitorProvider>
+                              <AccountStatesResolverProvider
+                                ammanClient={ammanClient}
+                              >
+                                <App ammanConnected={connected} />
+                              </AccountStatesResolverProvider>
+                            </CustomAddressLabelsProvider>
+                          </TransactionsMonitorProvider>
+                        </AmmanVersionProvider>
                       </TransactionsProvider>
                     </MintsProvider>
                   </EpochProvider>
@@ -71,16 +75,6 @@ main().catch((err: any) => {
 // -----------------
 // Helpers
 // -----------------
-async function verifyLocalCluster() {
-  const connection = new Connection(LOCALHOST);
-  try {
-    await connection.getClusterNodes();
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
 function initAmmanClient() {
   const url = `http://localhost:${AMMAN_RELAY_PORT}`;
   AmmanClient.setInstance(url);

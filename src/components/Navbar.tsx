@@ -3,6 +3,7 @@ import Logo from "img/logos-solana/dark-explorer-logo.svg";
 import { clusterPath } from "utils/url";
 import { Link, NavLink } from "react-router-dom";
 import { ClusterStatusButton } from "components/ClusterStatusButton";
+import { AmmanVersionView } from "amman/components";
 
 export function Navbar() {
   // TODO: use `collapsing` to animate collapsible navbar
@@ -12,7 +13,7 @@ export function Navbar() {
     <nav className="navbar navbar-expand-md navbar-light">
       <div className="container">
         <Link to={clusterPath("/")}>
-          <span>Amman</span>
+          <AmmanVersionView />
           <img src={Logo} width="250" alt="Solana Explorer" />
         </Link>
 

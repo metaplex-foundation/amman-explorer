@@ -7,11 +7,15 @@ import {
   MSG_UPDATE_ACCOUNT_STATES,
   RelayAccountState,
   MSG_REQUEST_ACCOUNT_STATES,
+  MSG_REQUEST_AMMAN_VERSION,
+  MSG_RESPOND_AMMAN_VERSION,
 } from "@metaplex-foundation/amman";
 import EventEmitter from "events";
 import io, { Socket } from "socket.io-client";
 import { logDebug } from "./log";
 import { strict as assert } from "assert";
+import { verifyLocalCluster } from "./utils";
+import { AmmanVersionInfo } from "./AmmanVersionChecker";
 
 export const UPDATE_ADDRESS_LABELS = "update:address-labels";
 export const CLEAR_ADDRESS_LABELS = "clear:address-labels";
@@ -60,6 +64,38 @@ export class AmmanClient extends EventEmitter {
     this.socket.emit(MSG_REQUEST_ACCOUNT_STATES, accountAddress);
   }
 
+  async fetchAmmanVersion() {
+    const relayConnected = this.socket.connected;
+    const ammanConnected = await verifyLocalCluster();
+    if (!ammanConnected || !relayConnected) {
+      return AmmanVersionInfo.unresolved(ammanConnected, relayConnected);
+    }
+    return new Promise((resolve, _reject) => {
+      let resolved = false;
+      // Initial Amman Versions didn't support this request
+      const timeout = setTimeout(() => {
+        if (!resolved) {
+          resolve(AmmanVersionInfo.unresolved(ammanConnected, relayConnected));
+        }
+      }, 1000);
+      this.socket
+        .on(MSG_RESPOND_AMMAN_VERSION, (version: [number, number, number]) => {
+          clearTimeout(timeout);
+          if (!resolved) {
+            resolve(
+              new AmmanVersionInfo(
+                version,
+                true,
+                ammanConnected,
+                relayConnected
+              )
+            );
+          }
+        })
+        .emit(MSG_REQUEST_AMMAN_VERSION);
+    });
+  }
+
   private static _instance: AmmanClient | undefined;
   static setInstance(url: string) {
     assert(
@@ -76,4 +112,8 @@ export class AmmanClient extends EventEmitter {
     );
     return AmmanClient._instance;
   }
+
+  static MIN_AMMAN_VERSION_REQUIRED = require("../../package.json")
+    .ammanVersion.split(".")
+    .map((v: string) => parseInt(v));
 }

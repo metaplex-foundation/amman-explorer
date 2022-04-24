@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useCustomAddressLabels, useTransactionsMonitor } from "./providers";
-import { TransactionInfo, TransactionsMonitor } from "./TransactionsMonitor";
+import { useCustomAddressLabels, useTransactionsMonitor } from "../providers";
+import { TransactionInfo, TransactionsMonitor } from "../TransactionsMonitor";
 
 export function TransactionsMonitorView() {
   const [transactionInfos] = useTransactionsMonitor();

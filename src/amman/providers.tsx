@@ -8,6 +8,7 @@ import {
   AccountStatesResolver,
   ResolvedAccountStates,
 } from "./AccountStatesResolver";
+import { AmmanVersionChecker, AmmanVersionInfo } from "./AmmanVersionChecker";
 
 // -----------------
 // TransactionsMonitor
@@ -38,6 +39,36 @@ export function TransactionsMonitorProvider(props: any) {
   );
   TransactionsMonitor.instance(url, props.ammanClient, setTransactionInfos);
   return <TransactionsMonitorContext.Provider value={value} {...props} />;
+}
+
+// -----------------
+// AmmanVersion
+// -----------------
+const AmmanVersionContext: React.Context<AmmanVersionInfo> =
+  React.createContext(AmmanVersionInfo.uninitialized());
+
+export function useAmmanVersion() {
+  const context = React.useContext(AmmanVersionContext);
+  assert(
+    context != null,
+    "useAmmanVersion expected to be inside AmmanVersionProvider"
+  );
+  return context as unknown as [
+    AmmanVersionInfo,
+    React.Dispatch<React.SetStateAction<AmmanVersionInfo>>
+  ];
+}
+
+export function AmmanVersionProvider(props: any) {
+  const [ammanVersionInfo, setAmmanVersionInfo] = React.useState(
+    AmmanVersionInfo.uninitialized()
+  );
+  const value = React.useMemo(
+    () => [ammanVersionInfo, setAmmanVersionInfo],
+    [ammanVersionInfo]
+  );
+  AmmanVersionChecker.instance(props.ammanClient, setAmmanVersionInfo);
+  return <AmmanVersionContext.Provider value={value} {...props} />;
 }
 
 // -----------------
