@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import { BrowserRouter as Router } from "react-router-dom";
+import { HashRouter as Router } from "react-router-dom";
 import "./scss/theme-dark.scss";
 import App from "./App";
 import { ClusterProvider } from "./providers/cluster";
