@@ -2,12 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Copyable } from "../../components/common/Copyable";
 import { TableCardBody } from "../../components/common/TableCardBody";
-import { ClusterStatus, useCluster } from "../../providers/cluster";
+import { useAmmanVersion } from "../providers";
 
 export function AmmanGuidePage() {
   // TODO(thlorenz): what do we do if another cluster is selected here?
-  const { status } = useCluster();
-  const ammanConnected = status === ClusterStatus.Connected;
+  const [verrsionInfo] = useAmmanVersion();
+  const { ammanConnected } = verrsionInfo;
   return (
     <div className="container mt-4">
       <AmmanConnectionGreeting ammanConnected={ammanConnected} />
