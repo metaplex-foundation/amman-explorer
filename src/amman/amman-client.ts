@@ -113,7 +113,7 @@ export class AmmanClient extends EventEmitter {
     return AmmanClient._instance;
   }
 
-  static MIN_AMMAN_VERSION_REQUIRED = require("../../package.json")
-    .ammanVersion.split(".")
+  static MIN_AMMAN_CLI_VERSION_REQUIRED = require("../../package.json")
+    .ammanCliVersion.split(".")
     .map((v: string) => parseInt(v));
 }

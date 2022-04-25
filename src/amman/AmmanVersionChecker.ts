@@ -17,12 +17,12 @@ export class AmmanVersionInfo {
   }
 
   get ammanClientRequiredVersion(): string {
-    const version = AmmanClient.MIN_AMMAN_VERSION_REQUIRED;
+    const version = AmmanClient.MIN_AMMAN_CLI_VERSION_REQUIRED;
     return `v${version[0]}.${version[1]}.${version[2]}`;
   }
 
   get requiredVersionSatisfied(): boolean {
-    const version = AmmanClient.MIN_AMMAN_VERSION_REQUIRED;
+    const version = AmmanClient.MIN_AMMAN_CLI_VERSION_REQUIRED;
     if (this.version[0] > version[0]) return true;
     if (this.version[0] < version[0]) return false;
     if (this.version[1] > version[1]) return true;
