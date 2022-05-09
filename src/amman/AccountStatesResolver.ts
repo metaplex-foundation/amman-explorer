@@ -32,7 +32,7 @@ function mapAccountDiffByPath(
   const map = new Map();
   for (const diff of accountDiff) {
     if (diff.path != null && diff.path.length > 0) {
-      map.set(diff.path[0], getAccountDiffType(diff));
+      map.set(diff.path.join('.'), getAccountDiffType(diff));
     }
   }
   return map;
