@@ -63,9 +63,9 @@ function Installation({ ammanConnected }: { ammanConnected: boolean }) {
         <tr>
           <td>1. Install Solana</td>
           <td className="text-lg-end">
-            <Link to={{ pathname: installSolanaUrl }} target="_blank">
+            <a href={installSolanaUrl} target="_blank" rel="noreferrer">
               {installSolanaUrl}
-            </Link>
+            </a>
           </td>
         </tr>
         <tr>
@@ -195,9 +195,9 @@ function APIUsage() {
     <tr>
       <td className={className}>{title}</td>
       <td className="text-lg-end">
-        <Link to={{ pathname: link }} target="_blank">
+        <a href={ link } target="_blank" rel="noreferrer">
           {link}
-        </Link>
+        </a>
       </td>
     </tr>
   );
@@ -215,9 +215,9 @@ function APIUsage() {
             your project
           </td>
           <td className="text-lg-end">
-            <Link to={{ pathname: ammanConfigUrl }} target="_blank">
+            <a href={ ammanConfigUrl } target="_blank" rel="noreferrer">
               {ammanConfigUrl}
-            </Link>
+            </a>
           </td>
         </tr>
         {codeStep(
@@ -261,9 +261,9 @@ function APIUsage() {
             6.a Label acounts via <code>amman.addr</code>
           </td>
           <td className="text-lg-end">
-            <Link to={{ pathname: ammanAddrUrl }} target="_blank">
+            <a href={ ammanAddrUrl } target="_blank" rel="noreferrer">
               {ammanAddrUrl}
-            </Link>
+            </a>
           </td>
         </tr>
         {linkStep(
@@ -286,9 +286,9 @@ function CliExample() {
       <TableCardBody>
         <p className="m-3">
           Follow
-          <Link className="me-0 pe-0 d-inline" to={{ pathname: walkThruUrl }}>
+          <a className="me-0 pe-0 d-inline" href={ walkThruUrl } rel="noreferrer"  >
             this walk through,
-          </Link>
+          </a>
           <span>watch the screencast above or run the script below</span>
         </p>
         <Copyable text={CLI_EXAMPLE}>
