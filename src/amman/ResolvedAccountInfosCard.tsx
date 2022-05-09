@@ -89,7 +89,7 @@ export function RenderedResolvedAccountState(
             : JSON.stringify(val, null, 2).slice(0, 150) + " …";
       } else if (val != null && typeof val === "object") {
         val = RenderedResolvedAccountState(
-          { account: val },
+          { account: val, accountDiff: resolvedAccountState.accountDiff },
           { nestedLevel: (nestedLevel ?? 0) + 1, label, path: keyPath }
         );
       } else {
