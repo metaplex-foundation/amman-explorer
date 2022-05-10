@@ -2,6 +2,7 @@ import { ErrorCard } from "../components/common/ErrorCard";
 import { TableCardBody } from "../components/common/TableCardBody";
 import {
   AccountDiffType,
+  AccountStatesResolver,
   ResolvedAccountStates,
 } from "./AccountStatesResolver";
 import { useCustomAddressLabels } from "./providers";
@@ -31,11 +32,18 @@ export function ResolvedAccountInfosCard({
   accountAddress: string;
 }) {
   const [customAddressLabels] = useCustomAddressLabels();
+
   const customLabel = customAddressLabels.get(accountAddress);
   const label = customLabel ?? `${accountAddress.slice(0, 20)}...`;
 
   let content;
-  if (resolvedAccountStates == null) {
+  if (resolvedAccountStates == null || resolvedAccountStates.states.length === 0) {
+    // There is no obvious place to request this update fo the particular account.
+    // Only labeled accounts are resolved ahead of time.
+    // This is a little hacky, but works as only the first time an error is encountered
+    // do we request this.
+    // If the request fails, no update occurs and we don't enter here again.
+    AccountStatesResolver.instance.requestAccountStates(accountAddress);
     content = (
       <ErrorCard
         text={

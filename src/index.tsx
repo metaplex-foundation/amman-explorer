@@ -29,7 +29,7 @@ async function main() {
 }
 
 function renderApp(ammanClient: AmmanClient, connected: boolean) {
-  AccountStatesResolver.setInstance(ammanClient)
+  AccountStatesResolver.setInstance(ammanClient);
   ReactDOM.render(
     <Router>
       <ClusterProvider>

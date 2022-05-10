@@ -2,7 +2,7 @@ import { TransactionInfo, TransactionsMonitor } from "./TransactionsMonitor";
 import { strict as assert } from "assert";
 
 import { useCluster } from "../providers/cluster";
-import React, {useEffect} from "react";
+import React from "react";
 import { CustomAddressLabelsMonitor } from "./CustomAddressLabelsMonitor";
 import {
   AccountStatesResolver,
@@ -125,13 +125,11 @@ export function ResolvedAccountStatesProvider(props: any) {
     new Map() as Map<string, ResolvedAccountStates>
   );
   const accountStatesResolver = AccountStatesResolver.instance;
-  useEffect(() => { 
-    accountStatesResolver.handleAccountStatesResolved = setResolvedAccountStates;
-  }, [accountStatesResolver])
+  accountStatesResolver.handleAccountStatesResolved = setResolvedAccountStates;
 
   const value = React.useMemo(
     () => [resolvedAccountStates, setResolvedAccountStates],
-    [resolvedAccountStates]
+    [resolvedAccountStates, setResolvedAccountStates]
   );
   return <ResolvedAccountStatesContext.Provider value={value} {...props} />;
 }
