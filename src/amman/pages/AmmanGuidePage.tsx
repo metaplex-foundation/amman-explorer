@@ -195,7 +195,7 @@ function APIUsage() {
     <tr>
       <td className={className}>{title}</td>
       <td className="text-lg-end">
-        <a href={ link } target="_blank" rel="noreferrer">
+        <a href={link} target="_blank" rel="noreferrer">
           {link}
         </a>
       </td>
@@ -215,7 +215,7 @@ function APIUsage() {
             your project
           </td>
           <td className="text-lg-end">
-            <a href={ ammanConfigUrl } target="_blank" rel="noreferrer">
+            <a href={ammanConfigUrl} target="_blank" rel="noreferrer">
               {ammanConfigUrl}
             </a>
           </td>
@@ -261,7 +261,7 @@ function APIUsage() {
             6.a Label acounts via <code>amman.addr</code>
           </td>
           <td className="text-lg-end">
-            <a href={ ammanAddrUrl } target="_blank" rel="noreferrer">
+            <a href={ammanAddrUrl} target="_blank" rel="noreferrer">
               {ammanAddrUrl}
             </a>
           </td>
@@ -286,7 +286,7 @@ function CliExample() {
       <TableCardBody>
         <p className="m-3">
           Follow
-          <a className="me-0 pe-0 d-inline" href={ walkThruUrl } rel="noreferrer"  >
+          <a className="me-0 pe-0 d-inline" href={walkThruUrl} rel="noreferrer">
             this walk through,
           </a>
           <span>watch the screencast above or run the script below</span>

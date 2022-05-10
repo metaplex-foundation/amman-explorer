@@ -32,7 +32,7 @@ function mapAccountDiffByPath(
   const map = new Map();
   for (const diff of accountDiff) {
     if (diff.path != null && diff.path.length > 0) {
-      map.set(diff.path.join('.'), getAccountDiffType(diff));
+      map.set(diff.path.join("."), getAccountDiffType(diff));
     }
   }
   return map;
@@ -54,9 +54,7 @@ export class AccountStatesResolver {
     new Map();
   handleAccountStatesResolved: HandleAccountStatesResolved = () => {};
 
-  private constructor(
-    readonly ammanClient: AmmanClient,
-  ) {
+  private constructor(readonly ammanClient: AmmanClient) {
     this.ammanClient.on(RESOLVED_ACCOUNT_STATES, this.onResolvedAccountStates);
   }
 
@@ -98,15 +96,13 @@ export class AccountStatesResolver {
     );
     return AccountStatesResolver._instance;
   }
-  static setInstance(
-    ammanClient: AmmanClient,
-  ): AccountStatesResolver {
+  static setInstance(ammanClient: AmmanClient): AccountStatesResolver {
     if (AccountStatesResolver._instance != null) {
       console.warn("can only set AccountInfoResolver instance once");
       return AccountStatesResolver._instance;
     }
     return (AccountStatesResolver._instance = new AccountStatesResolver(
-      ammanClient,
+      ammanClient
     ));
   }
 }
