@@ -18,7 +18,11 @@ function getAccountDiffType(diff: AccountDiff[number]): AccountDiffType {
     case "D":
       return AccountDiffType.Removed;
     case "E":
-      return AccountDiffType.Changed;
+      return diff.lhs == null
+        ? AccountDiffType.Added
+        : diff.rhs == null
+        ? AccountDiffType.Removed
+        : AccountDiffType.Changed;
     default:
       // @ts-ignore we did cover all cases here
       throw new UnreachableCaseError(diff.kind);
