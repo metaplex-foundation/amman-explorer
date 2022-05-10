@@ -42,7 +42,7 @@ import { DomainsCard } from "components/account/DomainsCard";
 import isMetaplexNFT from "providers/accounts/utils/isMetaplexNFT";
 import { useResolvedAccountStates } from "../amman";
 import { ResolvedAccountInfosCard } from "../amman/ResolvedAccountInfosCard";
-import { ResolvedAccountStates } from "../amman/AccountStatesResolver";
+import { AccountStatesResolver, ResolvedAccountStates } from "../amman/AccountStatesResolver";
 
 const IDENTICON_WIDTH = 64;
 
@@ -348,9 +348,13 @@ function MoreSection({
   tabs: Tab[];
   resolvedAccountStates?: ResolvedAccountStates;
 }) {
+  const accountStatesResolver = AccountStatesResolver.instance;
   const pubkey = account.pubkey;
   const address = account.pubkey.toBase58();
   const data = account?.details?.data;
+  if (tab === "resolved-info") {
+    accountStatesResolver.requestAccountStates(pubkey.toBase58());
+  }
   return (
     <>
       <div className="container">

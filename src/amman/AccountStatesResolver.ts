@@ -52,9 +52,10 @@ export type HandleAccountStatesResolved = (
 export class AccountStatesResolver {
   private readonly resolvedAccountStates: Map<string, ResolvedAccountStates> =
     new Map();
+  handleAccountStatesResolved: HandleAccountStatesResolved = () => {};
+
   private constructor(
     readonly ammanClient: AmmanClient,
-    readonly handleAccountStatesResolved: HandleAccountStatesResolved
   ) {
     this.ammanClient.on(RESOLVED_ACCOUNT_STATES, this.onResolvedAccountStates);
   }
@@ -99,7 +100,6 @@ export class AccountStatesResolver {
   }
   static setInstance(
     ammanClient: AmmanClient,
-    handleAccountStatesResolved: HandleAccountStatesResolved
   ): AccountStatesResolver {
     if (AccountStatesResolver._instance != null) {
       console.warn("can only set AccountInfoResolver instance once");
@@ -107,7 +107,6 @@ export class AccountStatesResolver {
     }
     return (AccountStatesResolver._instance = new AccountStatesResolver(
       ammanClient,
-      handleAccountStatesResolved
     ));
   }
 }
