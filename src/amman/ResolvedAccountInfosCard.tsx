@@ -12,6 +12,7 @@ import formatDistance from "date-fns/formatDistance";
 import { Slot } from "../components/common/Slot";
 import assert from "assert";
 import {InfoTooltip} from "../components/common/InfoTooltip";
+import {Link} from "react-router-dom";
 
 function classForDiff(diff?: AccountDiffType) {
   if (diff == null) return "";
@@ -67,12 +68,6 @@ export function ResolvedAccountInfosCard({
     resolvedAccountStates == null ||
     resolvedAccountStates.states.length === 0
   ) {
-    // There is no obvious place to request this update fo the particular account.
-    // Only labeled accounts are resolved ahead of time.
-    // This is a little hacky, but works as only the first time an error is encountered
-    // do we request this.
-    // If the request fails, no update occurs and we don't enter here again.
-    AccountStatesResolver.instance.requestAccountStates(accountAddress);
     content = (
       <ErrorCard
         text={
@@ -80,6 +75,10 @@ export function ResolvedAccountInfosCard({
         }
       />
     );
+    // Request account states update here. This will asynchronously resolve the
+    // states from the Relay and only cause rerender if the states changed.
+    // See: src/amman/AccountStatesResolver.ts `onResolvedAccountStates`
+    AccountStatesResolver.instance.requestAccountStates(accountAddress);
   } else {
     content = [];
     for (let idx = resolvedAccountStates.states.length - 1; idx >= 0; idx--) {
@@ -94,7 +93,17 @@ export function ResolvedAccountInfosCard({
     }
   }
 
-  return <>{content}</>;
+  return <>
+
+    <Link
+      className="fs-5 d-inline ms-4 text-muted"
+      to={"#"}
+      onClick={() => AccountStatesResolver.instance.requestAccountStates(accountAddress)}
+    >
+     Update 
+    </Link>
+    {content}
+    </>;
 }
 
 export function RenderedResolvedAccountState(
@@ -152,7 +161,6 @@ export function RenderedResolvedAccountState(
         valDiff = resolvedAccountState.accountDiff?.get(keyPath);
         const valDiffClass = classForDiff(valDiff);
         valClassname += ` ${valDiffClass}`;
-
       }
 
       rowIdx++;
