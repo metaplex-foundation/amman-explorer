@@ -12,11 +12,12 @@ import { EpochProvider } from "./providers/epoch";
 import { StatsProvider } from "providers/stats";
 import { MintsProvider } from "providers/mints";
 import {
-  AccountStatesResolverProvider,
+  ResolvedAccountStatesProvider,
   AmmanClient,
   AmmanVersionProvider,
   CustomAddressLabelsProvider,
   TransactionsMonitorProvider,
+  AccountStatesResolver,
 } from "./amman";
 import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
 import { verifyLocalCluster } from "./amman/utils";
@@ -28,6 +29,7 @@ async function main() {
 }
 
 function renderApp(ammanClient: AmmanClient, connected: boolean) {
+  AccountStatesResolver.setInstance(ammanClient);
   ReactDOM.render(
     <Router>
       <ClusterProvider>
@@ -46,11 +48,9 @@ function renderApp(ammanClient: AmmanClient, connected: boolean) {
                             <CustomAddressLabelsProvider
                               ammanClient={ammanClient}
                             >
-                              <AccountStatesResolverProvider
-                                ammanClient={ammanClient}
-                              >
+                              <ResolvedAccountStatesProvider>
                                 <App ammanConnected={connected} />
-                              </AccountStatesResolverProvider>
+                              </ResolvedAccountStatesProvider>
                             </CustomAddressLabelsProvider>
                           </TransactionsMonitorProvider>
                         </AmmanVersionProvider>

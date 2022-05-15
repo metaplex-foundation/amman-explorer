@@ -2,6 +2,7 @@ import { ErrorCard } from "../components/common/ErrorCard";
 import { TableCardBody } from "../components/common/TableCardBody";
 import {
   AccountDiffType,
+  AccountStatesResolver,
   ResolvedAccountStates,
 } from "./AccountStatesResolver";
 import { useCustomAddressLabels } from "./providers";
@@ -10,6 +11,8 @@ import { displayTimestamp } from "../utils/date";
 import formatDistance from "date-fns/formatDistance";
 import { Slot } from "../components/common/Slot";
 import assert from "assert";
+import { InfoTooltip } from "../components/common/InfoTooltip";
+import { Link } from "react-router-dom";
 
 function classForDiff(diff?: AccountDiffType) {
   if (diff == null) return "";
@@ -23,6 +26,34 @@ function classForDiff(diff?: AccountDiffType) {
   }
 }
 
+function maybeTooltip(
+  diff: AccountDiffType | undefined,
+  val: string,
+  bottom: boolean = false
+) {
+  if (diff == null) return val;
+  switch (diff) {
+    case AccountDiffType.Added:
+      return (
+        <InfoTooltip right bottom={bottom} text="Property was added">
+          {val}
+        </InfoTooltip>
+      );
+    case AccountDiffType.Removed:
+      return (
+        <InfoTooltip right bottom={bottom} text="Property was removed">
+          {val}
+        </InfoTooltip>
+      );
+    case AccountDiffType.Changed:
+      return (
+        <InfoTooltip right bottom={bottom} text="Property was updated">
+          {val}
+        </InfoTooltip>
+      );
+  }
+}
+
 export function ResolvedAccountInfosCard({
   resolvedAccountStates,
   accountAddress,
@@ -31,11 +62,15 @@ export function ResolvedAccountInfosCard({
   accountAddress: string;
 }) {
   const [customAddressLabels] = useCustomAddressLabels();
+
   const customLabel = customAddressLabels.get(accountAddress);
   const label = customLabel ?? `${accountAddress.slice(0, 20)}...`;
 
   let content;
-  if (resolvedAccountStates == null) {
+  if (
+    resolvedAccountStates == null ||
+    resolvedAccountStates.states.length === 0
+  ) {
     content = (
       <ErrorCard
         text={
@@ -43,6 +78,10 @@ export function ResolvedAccountInfosCard({
         }
       />
     );
+    // Request account states update here. This will asynchronously resolve the
+    // states from the Relay and only cause rerender if the states changed.
+    // See: src/amman/AccountStatesResolver.ts `onResolvedAccountStates`
+    AccountStatesResolver.instance.requestAccountStates(accountAddress);
   } else {
     content = [];
     for (let idx = resolvedAccountStates.states.length - 1; idx >= 0; idx--) {
@@ -57,7 +96,20 @@ export function ResolvedAccountInfosCard({
     }
   }
 
-  return <>{content}</>;
+  return (
+    <>
+      <Link
+        className="fs-5 d-inline ms-4 text-muted"
+        to={"#"}
+        onClick={() =>
+          AccountStatesResolver.instance.requestAccountStates(accountAddress)
+        }
+      >
+        Update
+      </Link>
+      {content}
+    </>
+  );
 }
 
 export function RenderedResolvedAccountState(
@@ -74,6 +126,7 @@ export function RenderedResolvedAccountState(
     path,
   }: { label?: string; nestedLevel: number; path: string }
 ) {
+  let rowIdx = 0;
   const rows = Object.entries(resolvedAccountState.account).map(
     ([key, val]) => {
       const keyPath = path.length === 0 ? key : `${path}.${key}`;
@@ -100,14 +153,32 @@ export function RenderedResolvedAccountState(
             ? "null"
             : val.toString();
       }
-      const diff = resolvedAccountState.accountDiff?.get(keyPath);
-      const diffClass = classForDiff(diff);
-      const valClassname = `text-lg-end font-monospace  ${diffClass}`;
+      const markKey = Array.isArray(val) || typeof val === "object";
+
+      let keyDiff = undefined;
+      let keyClassname = "text-lg-end font-monospace";
+      let valDiff = undefined;
+      let valClassname = "text-lg-end font-monospace";
+      if (markKey) {
+        keyDiff = resolvedAccountState.accountDiff?.get(keyPath);
+        const keyDiffClass = classForDiff(keyDiff);
+        keyClassname += ` ${keyDiffClass}`;
+      } else {
+        valDiff = resolvedAccountState.accountDiff?.get(keyPath);
+        const valDiffClass = classForDiff(valDiff);
+        valClassname += ` ${valDiffClass}`;
+      }
+
+      rowIdx++;
 
       return (
         <tr key={`${key}-${nestedLevel}`}>
-          <td>{key}</td>
-          <td className={valClassname}>{val} </td>
+          <td className={keyClassname}>
+            {maybeTooltip(keyDiff, key, rowIdx <= 2)}
+          </td>
+          <td className={valClassname}>
+            {maybeTooltip(valDiff, val, rowIdx <= 2)}
+          </td>
         </tr>
       );
     }

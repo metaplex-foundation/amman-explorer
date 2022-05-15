@@ -120,17 +120,16 @@ export function useResolvedAccountStates() {
   ];
 }
 
-export function AccountStatesResolverProvider(props: any) {
+export function ResolvedAccountStatesProvider(props: any) {
   const [resolvedAccountStates, setResolvedAccountStates] = React.useState(
     new Map() as Map<string, ResolvedAccountStates>
   );
+  const accountStatesResolver = AccountStatesResolver.instance;
+  accountStatesResolver.handleAccountStatesResolved = setResolvedAccountStates;
+
   const value = React.useMemo(
     () => [resolvedAccountStates, setResolvedAccountStates],
-    [resolvedAccountStates]
-  );
-  AccountStatesResolver.setInstance(
-    props.ammanClient,
-    setResolvedAccountStates
+    [resolvedAccountStates, setResolvedAccountStates]
   );
   return <ResolvedAccountStatesContext.Provider value={value} {...props} />;
 }

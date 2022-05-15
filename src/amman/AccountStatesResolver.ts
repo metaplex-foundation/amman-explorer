@@ -18,7 +18,11 @@ function getAccountDiffType(diff: AccountDiff[number]): AccountDiffType {
     case "D":
       return AccountDiffType.Removed;
     case "E":
-      return AccountDiffType.Changed;
+      return diff.lhs == null
+        ? AccountDiffType.Added
+        : diff.rhs == null
+        ? AccountDiffType.Removed
+        : AccountDiffType.Changed;
     default:
       // @ts-ignore we did cover all cases here
       throw new UnreachableCaseError(diff.kind);
@@ -32,7 +36,7 @@ function mapAccountDiffByPath(
   const map = new Map();
   for (const diff of accountDiff) {
     if (diff.path != null && diff.path.length > 0) {
-      map.set(diff.path.join('.'), getAccountDiffType(diff));
+      map.set(diff.path.join("."), getAccountDiffType(diff));
     }
   }
   return map;
@@ -52,10 +56,9 @@ export type HandleAccountStatesResolved = (
 export class AccountStatesResolver {
   private readonly resolvedAccountStates: Map<string, ResolvedAccountStates> =
     new Map();
-  private constructor(
-    readonly ammanClient: AmmanClient,
-    readonly handleAccountStatesResolved: HandleAccountStatesResolved
-  ) {
+  handleAccountStatesResolved: HandleAccountStatesResolved = () => {};
+
+  private constructor(readonly ammanClient: AmmanClient) {
     this.ammanClient.on(RESOLVED_ACCOUNT_STATES, this.onResolvedAccountStates);
   }
 
@@ -67,6 +70,14 @@ export class AccountStatesResolver {
     accountAddress: string,
     accountStates: RelayAccountState[]
   ) => {
+    // Ensure that we don't emit an event when account states are the same
+    const currentStates = this.resolvedAccountStates.get(accountAddress);
+    if (
+      currentStates != null &&
+      currentStates.states.length === accountStates.length
+    )
+      return;
+
     const labeledStates: ResolvedAccountState[] = [];
     for (const state of accountStates) {
       const labeledState: RelayAccountState = { ...state, account: {} };
@@ -97,17 +108,13 @@ export class AccountStatesResolver {
     );
     return AccountStatesResolver._instance;
   }
-  static setInstance(
-    ammanClient: AmmanClient,
-    handleAccountStatesResolved: HandleAccountStatesResolved
-  ): AccountStatesResolver {
+  static setInstance(ammanClient: AmmanClient): AccountStatesResolver {
     if (AccountStatesResolver._instance != null) {
       console.warn("can only set AccountInfoResolver instance once");
       return AccountStatesResolver._instance;
     }
     return (AccountStatesResolver._instance = new AccountStatesResolver(
-      ammanClient,
-      handleAccountStatesResolved
+      ammanClient
     ));
   }
 }
