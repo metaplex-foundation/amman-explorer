@@ -72,7 +72,11 @@ export class AccountStatesResolver {
   ) => {
     // Ensure that we don't emit an event when account states are the same
     const currentStates = this.resolvedAccountStates.get(accountAddress);
-    if (currentStates != null && currentStates.states.length === accountStates.length) return
+    if (
+      currentStates != null &&
+      currentStates.states.length === accountStates.length
+    )
+      return;
 
     const labeledStates: ResolvedAccountState[] = [];
     for (const state of accountStates) {

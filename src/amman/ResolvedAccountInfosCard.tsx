@@ -11,8 +11,8 @@ import { displayTimestamp } from "../utils/date";
 import formatDistance from "date-fns/formatDistance";
 import { Slot } from "../components/common/Slot";
 import assert from "assert";
-import {InfoTooltip} from "../components/common/InfoTooltip";
-import {Link} from "react-router-dom";
+import { InfoTooltip } from "../components/common/InfoTooltip";
+import { Link } from "react-router-dom";
 
 function classForDiff(diff?: AccountDiffType) {
   if (diff == null) return "";
@@ -26,8 +26,11 @@ function classForDiff(diff?: AccountDiffType) {
   }
 }
 
-function maybeTooltip(diff: AccountDiffType | undefined, val: string, 
-  bottom: boolean = false) {
+function maybeTooltip(
+  diff: AccountDiffType | undefined,
+  val: string,
+  bottom: boolean = false
+) {
   if (diff == null) return val;
   switch (diff) {
     case AccountDiffType.Added:
@@ -93,17 +96,20 @@ export function ResolvedAccountInfosCard({
     }
   }
 
-  return <>
-
-    <Link
-      className="fs-5 d-inline ms-4 text-muted"
-      to={"#"}
-      onClick={() => AccountStatesResolver.instance.requestAccountStates(accountAddress)}
-    >
-     Update 
-    </Link>
-    {content}
-    </>;
+  return (
+    <>
+      <Link
+        className="fs-5 d-inline ms-4 text-muted"
+        to={"#"}
+        onClick={() =>
+          AccountStatesResolver.instance.requestAccountStates(accountAddress)
+        }
+      >
+        Update
+      </Link>
+      {content}
+    </>
+  );
 }
 
 export function RenderedResolvedAccountState(
@@ -147,12 +153,12 @@ export function RenderedResolvedAccountState(
             ? "null"
             : val.toString();
       }
-      const markKey = Array.isArray(val) || typeof val === "object"
+      const markKey = Array.isArray(val) || typeof val === "object";
 
-      let keyDiff = undefined
-      let keyClassname = 'text-lg-end font-monospace'
-      let valDiff = undefined
-      let valClassname = 'text-lg-end font-monospace'
+      let keyDiff = undefined;
+      let keyClassname = "text-lg-end font-monospace";
+      let valDiff = undefined;
+      let valClassname = "text-lg-end font-monospace";
       if (markKey) {
         keyDiff = resolvedAccountState.accountDiff?.get(keyPath);
         const keyDiffClass = classForDiff(keyDiff);
@@ -168,11 +174,11 @@ export function RenderedResolvedAccountState(
       return (
         <tr key={`${key}-${nestedLevel}`}>
           <td className={keyClassname}>
-            {maybeTooltip(keyDiff, key, rowIdx <=2) }
-        </td>
-        <td className={valClassname}>
-            {maybeTooltip(valDiff, val, rowIdx <=2) }
-           </td>
+            {maybeTooltip(keyDiff, key, rowIdx <= 2)}
+          </td>
+          <td className={valClassname}>
+            {maybeTooltip(valDiff, val, rowIdx <= 2)}
+          </td>
         </tr>
       );
     }
