@@ -29,32 +29,66 @@ function classForDiff(diff?: AccountDiffType) {
   }
 }
 
-function maybeTooltip(
-  diff: AccountDiffType | undefined,
-  val: string,
-  bottom: boolean = false
-) {
-  if (diff == null) return val;
+function AccountDiffNode(props: {
+  diff: AccountDiffType | undefined;
+  val: string;
+  previousVal?: string;
+  bottom?: boolean;
+}) {
+  const { diff, previousVal, val, bottom = false } = props;
+
+  const [showBefore, setShowBefore] = useState(false);
+
+  if (diff == null) return <>{val}</>;
+  const showVal = showBefore ? previousVal : val;
+
+  let content;
+  let interactive = false;
   switch (diff) {
     case AccountDiffType.Added:
-      return (
+      content = (
         <InfoTooltip right bottom={bottom} text="Property was added">
-          {val}
+          {showVal}
         </InfoTooltip>
       );
+      break;
     case AccountDiffType.Removed:
-      return (
-        <InfoTooltip right bottom={bottom} text="Property was removed">
-          {val}
+      interactive = true;
+      content = (
+        <InfoTooltip
+          right
+          bottom={bottom}
+          text="Property was removed, click to show previous value"
+        >
+          {showVal}
         </InfoTooltip>
       );
+      break;
     case AccountDiffType.Changed:
-      return (
-        <InfoTooltip right bottom={bottom} text="Property was updated">
-          {val}
+      interactive = true;
+      content = (
+        <InfoTooltip
+          right
+          bottom={bottom}
+          text="Property was updated, click to see previous value"
+        >
+          {showVal}
         </InfoTooltip>
       );
   }
+  const className = showBefore ? "text-danger" : "";
+  return interactive ? (
+    <div
+      role="button"
+      className={className}
+      onMouseDown={() => setShowBefore(true)}
+      onMouseUp={() => setShowBefore(false)}
+    >
+      {content}
+    </div>
+  ) : (
+    <div>{content}</div>
+  );
 }
 
 export function ResolvedAccountInfosCard({
@@ -89,8 +123,10 @@ export function ResolvedAccountInfosCard({
     content = [];
     for (let idx = resolvedAccountStates.states.length - 1; idx >= 0; idx--) {
       const state = resolvedAccountStates.states[idx];
+      const previousState =
+        idx > 0 ? resolvedAccountStates.states[idx - 1] : undefined;
       content.push(
-        RenderedResolvedAccountState(state, {
+        RenderedResolvedAccountState(state, previousState, {
           label: `${label} ${idx + 1}`,
           nestedLevel: 0,
           path: "",
@@ -115,14 +151,16 @@ export function ResolvedAccountInfosCard({
   );
 }
 
+type ResolvedAccountState = {
+  account: Record<string, any>;
+  accountDiff?: Map<string, AccountDiffType>;
+  rendered?: string;
+  timestamp?: number;
+  slot?: number;
+};
 export function RenderedResolvedAccountState(
-  resolvedAccountState: {
-    account: Record<string, any>;
-    accountDiff?: Map<string, AccountDiffType>;
-    rendered?: string;
-    timestamp?: number;
-    slot?: number;
-  },
+  resolvedAccountState: ResolvedAccountState,
+  previousState: ResolvedAccountState | undefined,
   {
     label,
     nestedLevel,
@@ -133,12 +171,18 @@ export function RenderedResolvedAccountState(
   const rows = Object.entries(resolvedAccountState.account).map(
     ([key, val]) => {
       const keyPath = path.length === 0 ? key : `${path}.${key}`;
+      let previousVal =
+        previousState?.account != null
+          ? previousState?.account[key]
+          : undefined;
+
       if (Array.isArray(val)) {
         val =
           val.length <= 10
-            ? val.map((x) =>
+            ? val.map((x, idx) =>
                 RenderedResolvedAccountState(
                   { account: x },
+                  { account: previousVal?.[idx] },
                   { nestedLevel: (nestedLevel ?? 0) + 1, label, path: keyPath }
                 )
               )
@@ -146,15 +190,16 @@ export function RenderedResolvedAccountState(
       } else if (val != null && typeof val === "object") {
         val = RenderedResolvedAccountState(
           { account: val, accountDiff: resolvedAccountState.accountDiff },
+          { account: previousVal },
           { nestedLevel: (nestedLevel ?? 0) + 1, label, path: keyPath }
         );
+        if (previousVal != null) previousVal = JSON.stringify(previousVal);
       } else {
-        val =
-          val === undefined
-            ? "undefined"
-            : val == null
-            ? "null"
-            : val.toString();
+        val = stringifyScalar(val);
+        previousVal =
+          previousVal != null && typeof previousVal === "object"
+            ? JSON.stringify(previousVal)
+            : stringifyScalar(previousVal);
       }
       const markKey = Array.isArray(val) || typeof val === "object";
 
@@ -177,10 +222,20 @@ export function RenderedResolvedAccountState(
       return (
         <tr key={`${key}-${nestedLevel}`}>
           <td className={keyClassname}>
-            {maybeTooltip(keyDiff, key, rowIdx <= 2)}
+            <AccountDiffNode
+              diff={keyDiff}
+              val={key}
+              previousVal={previousVal}
+              bottom={rowIdx <= 2}
+            />
           </td>
           <td className={valClassname}>
-            {maybeTooltip(valDiff, val, rowIdx <= 2)}
+            <AccountDiffNode
+              diff={valDiff}
+              val={val}
+              previousVal={previousVal}
+              bottom={rowIdx <= 2}
+            />
           </td>
         </tr>
       );
@@ -244,7 +299,7 @@ function ProcessRenderedAccountState({
   const consolidated = consolidateRenderedDiff(renderedDiff);
 
   const diffNodes = consolidated.map(({ changed, value, before }, idx) => (
-    <DiffNode
+    <RenderedDiffNode
       key={idx}
       changed={changed}
       value={value}
@@ -264,7 +319,7 @@ function ProcessRenderedAccountState({
   );
 }
 
-function DiffNode({
+function RenderedDiffNode({
   changed,
   value,
   before,
@@ -283,6 +338,9 @@ function DiffNode({
   return <span className={className}>{show}</span>;
 }
 
+// -----------------
+// Helpers
+// -----------------
 function consolidateRenderedDiff(renderedDiff: Change[]) {
   const consolidated = [];
   for (let i = 0; i < renderedDiff.length; i++) {
@@ -306,4 +364,12 @@ function consolidateRenderedDiff(renderedDiff: Change[]) {
   }
 
   return consolidated;
+}
+
+function stringifyScalar(val: any) {
+  return val === undefined
+    ? "undefined"
+    : val == null
+    ? "null"
+    : val.toString();
 }
