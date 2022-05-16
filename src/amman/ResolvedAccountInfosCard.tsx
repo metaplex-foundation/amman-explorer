@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { ErrorCard } from "../components/common/ErrorCard";
 import { TableCardBody } from "../components/common/TableCardBody";
 import {
@@ -9,6 +10,8 @@ import { useCustomAddressLabels } from "./providers";
 import { displayTimestamp } from "../utils/date";
 
 import formatDistance from "date-fns/formatDistance";
+// @ts-ignore linked
+import { Change } from "@metaplex-foundation/amman";
 import { Slot } from "../components/common/Slot";
 import assert from "assert";
 import { InfoTooltip } from "../components/common/InfoTooltip";
@@ -189,7 +192,11 @@ export function RenderedResolvedAccountState(
       <div>
         <TableCardBody>{rows}</TableCardBody>
         <h4>Rendered</h4>
-        <pre>{resolvedAccountState.rendered}</pre>
+
+        {/* @ts-ignore */}
+        <ProcessRenderedAccountState renderedDiff={resolvedAccountState.renderedDiff}
+          rendered={resolvedAccountState.rendered}
+        />
       </div>
     );
   } else {
@@ -221,4 +228,82 @@ export function RenderedResolvedAccountState(
       {content}
     </div>
   );
+}
+
+function ProcessRenderedAccountState({
+  rendered,
+  renderedDiff,
+}: {
+  rendered: string;
+  renderedDiff?: Change[];
+}) {
+  const [showBefore, setShowBefore] = useState(false);
+  if (renderedDiff == null || renderedDiff.length === 0) {
+    return <pre>{rendered}</pre>;
+  }
+  const consolidated = consolidateRenderedDiff(renderedDiff);
+
+  const diffNodes = consolidated.map(({ changed, value, before }, idx) => (
+    <DiffNode
+      key={idx}
+      changed={changed}
+      value={value}
+      before={before}
+      showBefore={showBefore}
+    />
+  ));
+
+  return (
+    <pre
+      role="button"
+      onMouseDown={() => setShowBefore(true)}
+      onMouseUp={() => setShowBefore(false)}
+    >
+      {diffNodes}
+    </pre>
+  );
+}
+
+function DiffNode({
+  changed,
+  value,
+  before,
+  showBefore,
+}: {
+  changed: boolean;
+  value: string;
+  before: string;
+  showBefore: boolean;
+}) {
+  if (!changed) {
+    return <>{value}</>;
+  }
+  const show = showBefore ? before : value;
+  const className = showBefore ? "text-danger" : "text-primary";
+  return <span className={className}>{show}</span>;
+}
+
+function consolidateRenderedDiff(renderedDiff: Change[]) {
+  const consolidated = [];
+  for (let i = 0; i < renderedDiff.length; i++) {
+    const { added, removed, value } = renderedDiff[i];
+    if (!added && !removed) {
+      consolidated.push({ changed: false, value });
+      continue;
+    }
+    if (removed) {
+      consolidated.push({
+        changed: true,
+        value: renderedDiff[i + 1].value,
+        before: value,
+      });
+      i++;
+      continue;
+    }
+    if (added) {
+      consolidated.push({ changed: true, value, before: " " });
+    }
+  }
+
+  return consolidated;
 }
