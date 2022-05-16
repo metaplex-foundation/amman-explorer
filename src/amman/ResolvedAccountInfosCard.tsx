@@ -249,7 +249,7 @@ export function RenderedResolvedAccountState(
         <h4>Rendered</h4>
 
         {/* @ts-ignore */}
-        <ProcessRenderedAccountState renderedDiff={resolvedAccountState.renderedDiff}
+        <RenderedBeforeAfter renderedDiff={resolvedAccountState.renderedDiff}
           rendered={resolvedAccountState.rendered}
         />
       </div>
@@ -285,85 +285,42 @@ export function RenderedResolvedAccountState(
   );
 }
 
-function ProcessRenderedAccountState({
-  rendered,
-  renderedDiff,
-}: {
+// -----------------
+// Rendered
+// -----------------
+function RenderedBeforeAfter(props: {
   rendered: string;
-  renderedDiff?: Change[];
-}) {
+  renderedDiff: Change[]}) {
+  const { rendered, renderedDiff } = props;
   const [showBefore, setShowBefore] = useState(false);
+  
   if (renderedDiff == null || renderedDiff.length === 0) {
     return <pre>{rendered}</pre>;
   }
-  const consolidated = consolidateRenderedDiff(renderedDiff);
 
-  const diffNodes = consolidated.map(({ changed, value, before }, idx) => (
-    <RenderedDiffNode
-      key={idx}
-      changed={changed}
-      value={value}
-      before={before}
-      showBefore={showBefore}
-    />
-  ));
-
+  const before = renderedDiff
+    .map((x, idx) => {
+      if (x.added) return null;  
+      const className = x.removed ? "text-danger" : ""
+      return <span key={idx} className={className}>{x.value}</span>
+    })
+    .filter(x => x != null)
+  const after = renderedDiff
+    .map((x,  idx) => {
+      if (x.removed) return null
+      const className = x.added ? "text-primary" : ""
+      return <span key={idx} className={className}>{x.value}</span>
+    })
+    .filter(x => x != null)
   return (
     <pre
       role="button"
       onMouseDown={() => setShowBefore(true)}
       onMouseUp={() => setShowBefore(false)}
     >
-      {diffNodes}
+      {showBefore ? before : after}
     </pre>
   );
-}
-
-function RenderedDiffNode({
-  changed,
-  value,
-  before,
-  showBefore,
-}: {
-  changed: boolean;
-  value: string;
-  before: string;
-  showBefore: boolean;
-}) {
-  if (!changed) {
-    return <>{value}</>;
-  }
-  const show = showBefore ? before : value;
-  const className = showBefore ? "text-danger" : "text-primary";
-  return <span className={className}>{show}</span>;
-}
-
-// -----------------
-// Helpers
-// -----------------
-function consolidateRenderedDiff(renderedDiff: Change[]) {
-  const consolidated = [];
-  for (let i = 0; i < renderedDiff.length; i++) {
-    const { added, removed, value } = renderedDiff[i];
-    if (!added && !removed) {
-      consolidated.push({ changed: false, value });
-      continue;
-    }
-    if (removed) {
-      consolidated.push({
-        changed: true,
-        value: renderedDiff[i + 1].value,
-        before: value,
-      });
-      i++;
-      continue;
-    }
-    if (added) {
-      consolidated.push({ changed: true, value, before: " " });
-    }
-  }
-
-  return consolidated;
 }
 
 function stringifyScalar(val: any) {
