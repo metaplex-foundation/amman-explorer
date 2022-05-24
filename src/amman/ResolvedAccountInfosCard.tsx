@@ -10,12 +10,10 @@ import { useCustomAddressLabels } from "./providers";
 import { displayTimestamp } from "../utils/date";
 
 import formatDistance from "date-fns/formatDistance";
-// @ts-ignore linked
-import { Change } from "@metaplex-foundation/amman";
+import type { Change } from "@metaplex-foundation/amman";
 import { Slot } from "../components/common/Slot";
 import assert from "assert";
 import { InfoTooltip } from "../components/common/InfoTooltip";
-import { Link } from "react-router-dom";
 
 function classForDiff(diff?: AccountDiffType) {
   if (diff == null) return "";
@@ -135,26 +133,14 @@ export function ResolvedAccountInfosCard({
     }
   }
 
-  return (
-    <>
-      <Link
-        className="fs-5 d-inline ms-4 text-muted"
-        to={"#"}
-        onClick={() =>
-          AccountStatesResolver.instance.requestAccountStates(accountAddress)
-        }
-      >
-        Update
-      </Link>
-      {content}
-    </>
-  );
+  return <>{content}</>;
 }
 
 type ResolvedAccountState = {
   account: Record<string, any>;
   accountDiff?: Map<string, AccountDiffType>;
   rendered?: string;
+  renderedDiff?: Change[];
   timestamp?: number;
   slot?: number;
 };
@@ -220,7 +206,7 @@ export function RenderedResolvedAccountState(
       rowIdx++;
 
       return (
-        <tr key={`${key}-${nestedLevel}`}>
+        <tr key={`${key}-${path}`}>
           <td className={keyClassname}>
             <AccountDiffNode
               diff={keyDiff}
@@ -248,8 +234,8 @@ export function RenderedResolvedAccountState(
         <TableCardBody>{rows}</TableCardBody>
         <h4>Rendered</h4>
 
-        {/* @ts-ignore */}
-        <RenderedBeforeAfter renderedDiff={resolvedAccountState.renderedDiff}
+        <RenderedBeforeAfter
+          renderedDiff={resolvedAccountState.renderedDiff}
           rendered={resolvedAccountState.rendered}
         />
       </div>
@@ -257,12 +243,13 @@ export function RenderedResolvedAccountState(
   } else {
     content = <TableCardBody>{rows}</TableCardBody>;
   }
-  if (nestedLevel > 0)
+  if (nestedLevel > 0) {
     return (
-      <div key={`${label}-${nestedLevel}`} className="p-3 table-bordered">
+      <div key={`${label}.${path}`} className="p-3 table-bordered">
         {content}
       </div>
     );
+  }
   const { slot, timestamp } = resolvedAccountState;
   assert(
     slot != null && timestamp != null,
@@ -290,28 +277,37 @@ export function RenderedResolvedAccountState(
 // -----------------
 function RenderedBeforeAfter(props: {
   rendered: string;
-  renderedDiff: Change[]}) {
+  renderedDiff?: Change[];
+}) {
   const { rendered, renderedDiff } = props;
   const [showBefore, setShowBefore] = useState(false);
-  
+
   if (renderedDiff == null || renderedDiff.length === 0) {
     return <pre>{rendered}</pre>;
   }
 
   const before = renderedDiff
     .map((x, idx) => {
-      if (x.added) return null;  
-      const className = x.removed ? "text-danger" : ""
-      return <span key={idx} className={className}>{x.value}</span>
+      if (x.added) return null;
+      const className = x.removed ? "text-danger" : "";
+      return (
+        <span key={idx} className={className}>
+          {x.value}
+        </span>
+      );
     })
-    .filter(x => x != null)
+    .filter((x) => x != null);
   const after = renderedDiff
-    .map((x,  idx) => {
-      if (x.removed) return null
-      const className = x.added ? "text-primary" : ""
-      return <span key={idx} className={className}>{x.value}</span>
+    .map((x, idx) => {
+      if (x.removed) return null;
+      const className = x.added ? "text-primary" : "";
+      return (
+        <span key={idx} className={className}>
+          {x.value}
+        </span>
+      );
     })
-    .filter(x => x != null)
+    .filter((x) => x != null);
   return (
     <pre
       role="button"
