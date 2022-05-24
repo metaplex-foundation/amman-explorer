@@ -9,6 +9,8 @@ import {
   MSG_REQUEST_ACCOUNT_STATES,
   MSG_REQUEST_AMMAN_VERSION,
   MSG_RESPOND_AMMAN_VERSION,
+  MSG_REQUEST_SNAPSHOT,
+  MSG_RESPOND_SNAPSHOT,
 } from "@metaplex-foundation/amman";
 import EventEmitter from "events";
 import io, { Socket } from "socket.io-client";
@@ -62,6 +64,14 @@ export class AmmanClient extends EventEmitter {
 
   requestAccountStates(accountAddress: string) {
     this.socket.emit(MSG_REQUEST_ACCOUNT_STATES, accountAddress);
+  }
+
+  saveSnapshot(label: string) {
+    return new Promise((resolve, _reject) => {
+      this.socket
+        .on(MSG_RESPOND_SNAPSHOT, resolve)
+        .emit(MSG_REQUEST_SNAPSHOT, label);
+    });
   }
 
   async fetchAmmanVersion(): Promise<AmmanVersionInfo> {

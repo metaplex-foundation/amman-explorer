@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCustomAddressLabels, useTransactionsMonitor } from "../providers";
 import { TransactionInfo, TransactionsMonitor } from "../TransactionsMonitor";
+import { SnapshotButton } from "./SnapshotButton";
 
 export function TransactionsMonitorView() {
   const [transactionInfos] = useTransactionsMonitor();
@@ -27,6 +28,7 @@ export function TransactionsMonitorView() {
   return (
     <div className="header-signatures container my-4">
       <h5 className="d-inline">Recent Transactions</h5>
+      <SnapshotButton className="fs-5 d-inline ms-4 text-muted float-end" />
       {linkLabel}
       <div className="row align-items-center">
         {transactionInfos.map((x) => TransactionView(x, customAddressLabels))}
