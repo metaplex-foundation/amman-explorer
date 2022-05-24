@@ -40,7 +40,7 @@ function UnresolvedVersion({ versionInfo }: { versionInfo: AmmanVersionInfo }) {
 function UpgradeAmman({ versionInfo }: { versionInfo: AmmanVersionInfo }) {
   return (
     <span className="text-danger">
-      Amman {versionInfo.ammanVersion} needs upgrade to {">="}
+      Amman {versionInfo.ammanVersion} should upgrade to {">="}
       {versionInfo.ammanClientRequiredVersion}
     </span>
   );
