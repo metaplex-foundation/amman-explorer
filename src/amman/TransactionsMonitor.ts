@@ -1,4 +1,4 @@
-import { LOCALHOST } from "@metaplex-foundation/amman";
+import { LOCALHOST } from "@metaplex-foundation/amman-client";
 import { strict as assert } from "assert";
 import {
   Connection,

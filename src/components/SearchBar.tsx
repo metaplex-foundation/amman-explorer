@@ -16,7 +16,7 @@ import { useTokenRegistry } from "providers/mints/token-registry";
 import { TokenInfoMap } from "@solana/spl-token-registry";
 import { TransactionsMonitorView } from "../amman/components";
 import { useCustomAddressLabels } from "../amman";
-import { identifySolanaAddress } from "@metaplex-foundation/amman";
+import { identifySolanaAddress } from "@metaplex-foundation/amman-client";
 
 export function SearchBar() {
   const [search, setSearch] = React.useState("");

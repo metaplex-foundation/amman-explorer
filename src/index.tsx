@@ -19,7 +19,7 @@ import {
   TransactionsMonitorProvider,
   AccountStatesResolver,
 } from "./amman";
-import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman";
+import { AMMAN_RELAY_PORT } from "@metaplex-foundation/amman-client";
 import { verifyLocalCluster } from "./amman/utils";
 
 async function main() {

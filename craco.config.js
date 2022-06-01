@@ -23,7 +23,7 @@ module.exports = {
       ignoreWarnings: [/Failed to parse source map/],
       resolve: {
         fallback: {
-          process: require.resolve('process/browser'),
+          process: false, // require.resolve('process/browser'),
           crypto: require.resolve('crypto-browserify'),
           stream: require.resolve('stream-browserify'),
           http: false, // require.resolve("stream-http")
