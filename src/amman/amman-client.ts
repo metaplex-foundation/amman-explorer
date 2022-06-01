@@ -11,7 +11,7 @@ import {
   MSG_RESPOND_AMMAN_VERSION,
   MSG_REQUEST_SNAPSHOT_SAVE,
   MSG_RESPOND_SNAPSHOT_SAVE,
-} from "@metaplex-foundation/amman";
+} from "@metaplex-foundation/amman-client";
 import EventEmitter from "events";
 import io, { Socket } from "socket.io-client";
 import { logDebug } from "./log";

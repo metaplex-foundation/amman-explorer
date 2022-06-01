@@ -1,4 +1,4 @@
-import { LOCALHOST } from "@metaplex-foundation/amman";
+import { LOCALHOST } from "@metaplex-foundation/amman-client";
 import { Connection } from "@solana/web3.js";
 import { inspect } from "util";
 

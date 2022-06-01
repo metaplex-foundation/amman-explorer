@@ -221,12 +221,12 @@ function APIUsage() {
           </td>
         </tr>
         {codeStep(
-          "2. Install Amman as part of your Project",
-          "yarn add -D @metaplex-foundation/amman"
+          "2. Install Amman Client as part of your Project",
+          "yarn add -D @metaplex-foundation/amman-client"
         )}
         {codeStep(
           "3. Import Amman",
-          "import { Amman, LOCALHOST } from '@metaplex-foundation/amman"
+          "import { Amman, LOCALHOST } from '@metaplex-foundation/amman-client"
         )}
         {codeStep("4 Initialize Amman", null, "text-primary")}
         {linkStep(

@@ -10,7 +10,6 @@ import { useCustomAddressLabels } from "./providers";
 import { displayTimestamp } from "../utils/date";
 
 import formatDistance from "date-fns/formatDistance";
-import type { Change } from "@metaplex-foundation/amman";
 import { Slot } from "../components/common/Slot";
 import assert from "assert";
 import { InfoTooltip } from "../components/common/InfoTooltip";
@@ -140,7 +139,8 @@ type ResolvedAccountState = {
   account: Record<string, any>;
   accountDiff?: Map<string, AccountDiffType>;
   rendered?: string;
-  renderedDiff?: Change[];
+  // TODO(thlorenz): Export from amman-client
+  renderedDiff?: any[] // Change[];
   timestamp?: number;
   slot?: number;
 };
@@ -277,7 +277,7 @@ export function RenderedResolvedAccountState(
 // -----------------
 function RenderedBeforeAfter(props: {
   rendered: string;
-  renderedDiff?: Change[];
+  renderedDiff?: any[] // Change[];
 }) {
   const { rendered, renderedDiff } = props;
   const [showBefore, setShowBefore] = useState(false);

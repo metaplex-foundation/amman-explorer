@@ -9,7 +9,7 @@ import { useQuery } from "../utils/url";
 import { useHistory, useLocation } from "react-router-dom";
 import { reportError } from "utils/sentry";
 import { localStorageIsAvailable } from "utils";
-import { LOCALHOST } from "@metaplex-foundation/amman";
+import { LOCALHOST } from "@metaplex-foundation/amman-client";
 
 export enum ClusterStatus {
   Connected,

@@ -1,7 +1,7 @@
 import { AmmanClient, RESOLVED_ACCOUNT_STATES } from "./amman-client";
 import { strict as assert } from "assert";
 import { CustomAddressLabelsMonitor } from "./CustomAddressLabelsMonitor";
-import { AccountDiff, RelayAccountState } from "@metaplex-foundation/amman";
+import { AccountDiff, RelayAccountState } from "@metaplex-foundation/amman-client";
 import { UnreachableCaseError } from "./utils";
 
 export enum AccountDiffType {
