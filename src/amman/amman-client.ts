@@ -73,8 +73,17 @@ export class AmmanClient extends EventEmitter {
       )
       .on(
         MSG_UPDATE_ACCOUNT_STATES,
-        (accountAddress: string, states: RelayAccountState[]) =>
-          this.emit(RESOLVED_ACCOUNT_STATES, accountAddress, states)
+        (reply: RelayReply<AccountStatesResult>) => {
+          if (isReplyWithError(reply)) {
+            return this.emit(AMMAN_CLIENT_ERROR, {
+              msg: MSG_RESPOND_ACCOUNT_STATES,
+              err: reply.err,
+            });
+          }
+
+          const { pubkey, states } = reply.result;
+          this.emit(RESOLVED_ACCOUNT_STATES, pubkey, states);
+        }
       );
 
     return this;
