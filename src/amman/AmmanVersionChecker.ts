@@ -1,10 +1,11 @@
+import { AmmanVersion } from "@metaplex-foundation/amman-client";
 import EventEmitter from "eventemitter3";
 import { AmmanClient } from "./amman-client";
 
 const UNRESOLVED_VERSION: [number, number, number] = [0, 0, 0];
 export class AmmanVersionInfo {
   constructor(
-    readonly version: [number, number, number],
+    readonly version: AmmanVersion,
     readonly initialized = true,
     readonly ammanConnected: boolean,
     readonly relayConnected: boolean

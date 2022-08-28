@@ -11,10 +11,15 @@ import {
   MSG_RESPOND_AMMAN_VERSION,
   MSG_REQUEST_SNAPSHOT_SAVE,
   MSG_RESPOND_SNAPSHOT_SAVE,
+  isReplyWithError,
+  AccountStatesResult,
+  RelayReply,
+  AmmanVersion,
+  AddressLabelsResult,
 } from "@metaplex-foundation/amman-client";
 import EventEmitter from "events";
 import io, { Socket } from "socket.io-client";
-import { logDebug } from "./log";
+import { logDebug, logError } from "./log";
 import { strict as assert } from "assert";
 import { verifyLocalCluster } from "./utils";
 import { AmmanVersionInfo } from "./AmmanVersionChecker";
@@ -23,6 +28,7 @@ export const UPDATE_ADDRESS_LABELS = "update:address-labels";
 export const CLEAR_ADDRESS_LABELS = "clear:address-labels";
 export const CLEAR_TRANSACTIONS = "clear:transactions";
 export const RESOLVED_ACCOUNT_STATES = "resolved:account-states";
+export const AMMAN_CLIENT_ERROR = "error:amman-client";
 
 export class AmmanClient extends EventEmitter {
   readonly socket: Socket;
@@ -39,15 +45,31 @@ export class AmmanClient extends EventEmitter {
 
   hookMessages() {
     this.socket
-      .on(MSG_UPDATE_ADDRESS_LABELS, (labels: Record<string, string>) =>
-        this.emit(UPDATE_ADDRESS_LABELS, labels)
+      .on(
+        MSG_UPDATE_ADDRESS_LABELS,
+        (reply: RelayReply<AddressLabelsResult>) => {
+          if (isReplyWithError(reply)) {
+            logError(reply.err);
+          } else {
+            this.emit(UPDATE_ADDRESS_LABELS, reply.result.labels);
+          }
+        }
       )
       .on(MSG_CLEAR_ADDRESS_LABELS, () => this.emit(CLEAR_ADDRESS_LABELS))
       .on(MSG_CLEAR_TRANSACTIONS, () => this.emit(CLEAR_TRANSACTIONS))
       .on(
         MSG_RESPOND_ACCOUNT_STATES,
-        (accountAddress: string, states: RelayAccountState[]) =>
-          this.emit(RESOLVED_ACCOUNT_STATES, accountAddress, states)
+        (reply: RelayReply<AccountStatesResult>) => {
+          if (isReplyWithError(reply)) {
+            return this.emit(AMMAN_CLIENT_ERROR, {
+              msg: MSG_RESPOND_ACCOUNT_STATES,
+              err: reply.err,
+            });
+          }
+
+          const { pubkey, states } = reply.result;
+          this.emit(RESOLVED_ACCOUNT_STATES, pubkey, states);
+        }
       )
       .on(
         MSG_UPDATE_ACCOUNT_STATES,
@@ -89,12 +111,18 @@ export class AmmanClient extends EventEmitter {
         }
       }, 1000);
       this.socket
-        .on(MSG_RESPOND_AMMAN_VERSION, (version: [number, number, number]) => {
+        .on(MSG_RESPOND_AMMAN_VERSION, (reply: RelayReply<AmmanVersion>) => {
           clearTimeout(timeout);
+          if (isReplyWithError(reply)) {
+            return this.emit(AMMAN_CLIENT_ERROR, {
+              msg: MSG_RESPOND_AMMAN_VERSION,
+              err: reply.err,
+            });
+          }
           if (!resolved) {
             resolve(
               new AmmanVersionInfo(
-                version,
+                reply.result,
                 true,
                 ammanConnected,
                 relayConnected
