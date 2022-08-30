@@ -119,25 +119,32 @@ export class AmmanClient extends EventEmitter {
         }
       }, 1000);
       this.socket
-        .on(MSG_RESPOND_AMMAN_VERSION, (reply: RelayReply<AmmanVersion>) => {
-          clearTimeout(timeout);
-          if (isReplyWithError(reply)) {
-            return this.emit(AMMAN_CLIENT_ERROR, {
-              msg: MSG_RESPOND_AMMAN_VERSION,
-              err: reply.err,
-            });
+        .on(
+          MSG_RESPOND_AMMAN_VERSION,
+          (reply: RelayReply<AmmanVersion> | AmmanVersion) => {
+            clearTimeout(timeout);
+            // Older amman versions didn't send a reply but a version tuple instead
+            if (Array.isArray(reply)) {
+              reply = { result: reply as AmmanVersion };
+            }
+            if (isReplyWithError(reply)) {
+              return this.emit(AMMAN_CLIENT_ERROR, {
+                msg: MSG_RESPOND_AMMAN_VERSION,
+                err: reply.err,
+              });
+            }
+            if (!resolved) {
+              resolve(
+                new AmmanVersionInfo(
+                  reply.result,
+                  true,
+                  ammanConnected,
+                  relayConnected
+                )
+              );
+            }
           }
-          if (!resolved) {
-            resolve(
-              new AmmanVersionInfo(
-                reply.result,
-                true,
-                ammanConnected,
-                relayConnected
-              )
-            );
-          }
-        })
+        )
         .emit(MSG_REQUEST_AMMAN_VERSION);
     });
   }
